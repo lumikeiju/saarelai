@@ -51,7 +51,7 @@ jobs:
       SAARELAI_CACHE_DIR: ${{ github.workspace }}\.cache\saarelai
       PYTHONUTF8: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.action == 'promote-stable' && inputs.candidate_tag || github.ref }}
           fetch-depth: 0
