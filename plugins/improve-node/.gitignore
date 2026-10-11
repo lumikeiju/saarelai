@@ -1,0 +1,14 @@
+.cache/
+.venv/
+target/
+build/
+bin/
+.gradle/
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+*.wip

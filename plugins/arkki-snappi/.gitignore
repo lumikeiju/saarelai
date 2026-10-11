@@ -1,0 +1,14 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.cache/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+bin/

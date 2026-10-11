@@ -1,40 +1,36 @@
-# {{project_name}}
+# Saarelai
 
-{{project_description}}
+Saarelai is the home space for independently maintained JOSM mapping tools: plugins, tagging presets, MapCSS paint styles, validator rules, and related resources.
 
-## Status
+Like a workshop, Saarelai has a master artificer coordinating category stewards, each caring for one kind of tool.
 
-{{project_status}}
+## Organization
 
-## Prerequisites
+Each independently released item will live in its own directory under a category:
 
-- {{runtime}} {{runtime_version}}
-- {{package_manager}}
+```text
+plugins/<plugin-id>/
+presets/<preset-id>/
+styles/<style-id>/
+validators/<rule-id>/
+```
 
-## Setup
-
-{{setup_instructions}}
-
-## Configuration
-
-{{configuration_instructions}}
+An item owns its source, assets, tests, JOSM metadata, and changelog. There is no Saarelai-wide component version: releases are versioned per item. [catalog/components.json](catalog/components.json) maps each component to its native version source, validation, artifact, and persistent stable path. Shared automation and repository instructions live at the root.
 
 ## Development
 
-{{development_instructions}}
+There is no single application runtime or root build. Use the instructions and pinned toolchain for the component being changed. The plugin build workflow uses JDK 21 for Gradle; resulting plugins declare Java 25 as their minimum runtime, matching the target JOSM installation. Run the root release-utility tests with:
 
-## Validation
+```sh
+python -m unittest discover -s scripts/tests -v
+```
 
-Run `{{validation_command}}` before opening a pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow and [AGENTS.md](AGENTS.md) for repository-wide guidance.
 
-## Release and deployment
+## Releases and JOSM catalogs
 
-{{release_and_deployment_instructions}}
+Use the manual **Component release** workflow to create a candidate for one item and later promote that exact candidate to stable. Candidate assets include a checksummed package and source-commit provenance. Stable promotion updates only that item's persistent raw URL on the `stable` branch. See [catalog/README.md](catalog/README.md) for version preparation, dispatch inputs, environment protection, and local validation.
 
-## Contributing
+## Licensing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Report issues at [{{issue_tracker_url}}]({{issue_tracker_url}}).
-
-## License
-
-Licensed under [{{license_spdx_id}}](LICENSE).
+Saarelai gathers components with different licenses; there is no single license for the whole repository. See [LICENSES.md](LICENSES.md) and the license and attribution notices belonging to each component.

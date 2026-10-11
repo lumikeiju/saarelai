@@ -1,0 +1,395 @@
+name: Component release
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Create a candidate, or promote an existing candidate to stable
+        required: true
+        type: choice
+        options:
+          - candidate
+          - promote-stable
+      component:
+        description: Category-qualified component ID from catalog/components.json
+        required: true
+        type: string
+      candidate_tag:
+        description: Exact namespaced candidate tag to promote (stable action only)
+        required: false
+        type: string
+      stable_date:
+        description: Planned candidate / actual stable publication date YYYY-MM-DD (required for presets)
+        required: false
+        type: string
+      confirm_stable:
+        description: I tested the exact candidate and authorize publishing it to the stable feed
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    concurrency:
+      group: ${{ inputs.action == 'promote-stable' && 'stable-feed' || format('candidate-{0}', inputs.component) }}
+      cancel-in-progress: false
+    environment:
+      name: ${{ inputs.action == 'promote-stable' && 'stable' || 'candidate' }}
+    permissions:
+      contents: write
+    env:
+      COMPONENT: ${{ inputs.component }}
+      RELEASE_ACTION: ${{ inputs.action }}
+      CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+      STABLE_DATE: ${{ inputs.stable_date }}
+      GH_TOKEN: ${{ github.token }}
+      SAARELAI_CACHE_DIR: ${{ github.workspace }}\.cache\saarelai
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.action == 'promote-stable' && inputs.candidate_tag || github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test release utilities
+        shell: pwsh
+        run: python -m unittest discover -s scripts/tests -v
+
+      - uses: actions/cache@v4
+        with:
+          path: .cache/saarelai
+          key: josm-core-19646-c99bface5780e219d312a86e6e9edc63c32c0ba0e811f13b228c709f4f8b7b45
+
+      - name: Require a branch for candidate creation
+        if: ${{ inputs.action == 'candidate' }}
+        shell: pwsh
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if ($env:REF_TYPE -ne "branch" -or $env:REF_NAME -ne $env:DEFAULT_BRANCH) {
+              throw "Create candidates from the default branch after the component change has been reviewed."
+          }
+
+      - name: Require explicit stable approval
+        if: ${{ inputs.action == 'promote-stable' && inputs.confirm_stable != true }}
+        shell: pwsh
+        run: throw "Stable promotion requires the explicit approval checkbox."
+
+      - uses: actions/setup-java@v4
+        if: ${{ inputs.action == 'candidate' && startsWith(inputs.component, 'plugins/') }}
+        with:
+          distribution: zulu
+          java-version: "21"
+
+      - name: Build selected plugin
+        if: ${{ inputs.action == 'candidate' && startsWith(inputs.component, 'plugins/') }}
+        shell: pwsh
+        run: .\scripts\Invoke-ComponentBuild.ps1 -Component $env:COMPONENT
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "25"
+
+      - name: Validate candidate source with JOSM
+        if: ${{ inputs.action == 'candidate' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          python scripts/deploy.py validate --component $env:COMPONENT --for-release
+          if ($LASTEXITCODE -ne 0) {
+              throw "Release validation failed for $env:COMPONENT."
+          }
+
+      - name: Package candidate and provenance
+        id: candidate
+        if: ${{ inputs.action == 'candidate' }}
+        shell: pwsh
+        env:
+          SOURCE_REF: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $output = Join-Path $env:RUNNER_TEMP "saarelai-candidate"
+          $arguments = @(
+              "scripts/deploy.py", "prepare-candidate",
+              "--component", $env:COMPONENT,
+              "--source-ref", $env:SOURCE_REF,
+              "--source-commit", $env:SOURCE_SHA,
+              "--run-number", $env:RUN_NUMBER,
+              "--run-attempt", $env:RUN_ATTEMPT,
+              "--output", $output
+          )
+          if ($env:STABLE_DATE) {
+              $arguments += @("--stable-date", $env:STABLE_DATE)
+          }
+          $json = & python @arguments
+          if ($LASTEXITCODE -ne 0) {
+              throw "Candidate packaging failed."
+          }
+          $result = ($json -join "`n") | ConvertFrom-Json
+          "candidate_tag=$($result.candidateTag)" >> $env:GITHUB_OUTPUT
+          "version=$($result.version)" >> $env:GITHUB_OUTPUT
+          "package_path=$($result.packagePath)" >> $env:GITHUB_OUTPUT
+          "provenance_path=$($result.provenancePath)" >> $env:GITHUB_OUTPUT
+          "checksum_path=$($result.checksumPath)" >> $env:GITHUB_OUTPUT
+          "notes_path=$($result.releaseNotesPath)" >> $env:GITHUB_OUTPUT
+
+      - name: Publish candidate GitHub prerelease
+        if: ${{ inputs.action == 'candidate' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          gh release create "${{ steps.candidate.outputs.candidate_tag }}" `
+              "${{ steps.candidate.outputs.package_path }}" `
+              "${{ steps.candidate.outputs.provenance_path }}" `
+              "${{ steps.candidate.outputs.checksum_path }}" `
+              --repo $env:GITHUB_REPOSITORY `
+              --target "${{ github.sha }}" `
+              --prerelease `
+              --latest=false `
+              --title "$env:COMPONENT v${{ steps.candidate.outputs.version }} (candidate)" `
+              --notes-file "${{ steps.candidate.outputs.notes_path }}"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Candidate release creation failed."
+          }
+
+      - name: Verify candidate release is a prerelease and download its assets
+        id: downloaded
+        if: ${{ inputs.action == 'promote-stable' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if (-not $env:CANDIDATE_TAG) {
+              throw "candidate_tag is required for stable promotion."
+          }
+          $isPrerelease = & gh release view $env:CANDIDATE_TAG `
+              --repo $env:GITHUB_REPOSITORY --json isPrerelease --jq .isPrerelease
+          if ($LASTEXITCODE -ne 0 -or ($isPrerelease -join "").Trim() -ne "true") {
+              throw "The selected candidate tag is not an existing GitHub prerelease."
+          }
+          $download = Join-Path $env:RUNNER_TEMP "saarelai-candidate-assets"
+          New-Item -ItemType Directory -Path $download -Force | Out-Null
+          gh release download $env:CANDIDATE_TAG --repo $env:GITHUB_REPOSITORY `
+              --pattern "saarelai-*-candidate.zip" `
+              --pattern "provenance.json" `
+              --pattern "*.sha256" `
+              --dir $download
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not download the selected candidate assets."
+          }
+          $packages = @(Get-ChildItem -LiteralPath $download -Filter "saarelai-*-candidate.zip" -File)
+          $checksums = @(Get-ChildItem -LiteralPath $download -Filter "*.sha256" -File)
+          $provenance = Join-Path $download "provenance.json"
+          if ($packages.Count -ne 1 -or $checksums.Count -ne 1 -or -not (Test-Path $provenance)) {
+              throw "Candidate release must contain exactly one package, provenance.json, and checksum."
+          }
+          "package_path=$($packages[0].FullName)" >> $env:GITHUB_OUTPUT
+          "checksum_path=$($checksums[0].FullName)" >> $env:GITHUB_OUTPUT
+          "provenance_path=$provenance" >> $env:GITHUB_OUTPUT
+
+      - name: Verify exact candidate payload and stable-date policy
+        id: verified
+        if: ${{ inputs.action == 'promote-stable' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $arguments = @(
+              "scripts/deploy.py", "verify-candidate",
+              "--component", $env:COMPONENT,
+              "--candidate-tag", $env:CANDIDATE_TAG,
+              "--package", "${{ steps.downloaded.outputs.package_path }}",
+              "--provenance", "${{ steps.downloaded.outputs.provenance_path }}",
+              "--checksum", "${{ steps.downloaded.outputs.checksum_path }}"
+          )
+          if ($env:STABLE_DATE) {
+              $arguments += @("--stable-date", $env:STABLE_DATE)
+          }
+          $json = & python @arguments
+          if ($LASTEXITCODE -ne 0) {
+              throw "Candidate verification failed."
+          }
+          $provenance = ($json -join "`n") | ConvertFrom-Json
+          if ($provenance.sourceCommit -ne (git rev-parse HEAD).Trim()) {
+              throw "The candidate tag does not point to its recorded source commit."
+          }
+          $stableTag = "$env:COMPONENT/v$($provenance.version)"
+          "stable_tag=$stableTag" >> $env:GITHUB_OUTPUT
+          "version=$($provenance.version)" >> $env:GITHUB_OUTPUT
+          "source_commit=$($provenance.sourceCommit)" >> $env:GITHUB_OUTPUT
+          "package_path=${{ steps.downloaded.outputs.package_path }}" >> $env:GITHUB_OUTPUT
+          "provenance_path=${{ steps.downloaded.outputs.provenance_path }}" >> $env:GITHUB_OUTPUT
+          "checksum_path=${{ steps.downloaded.outputs.checksum_path }}" >> $env:GITHUB_OUTPUT
+
+      - name: Prepare isolated stable-feed worktree
+        if: ${{ inputs.action == 'promote-stable' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $feed = Join-Path $env:RUNNER_TEMP "stable-feed"
+          python scripts/deploy.py prepare-feed-worktree --feed-root $feed
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not prepare the stable worktree."
+          }
+          "feed_root=$feed" >> $env:GITHUB_ENV
+
+      - name: Preflight selected component feed changes
+        id: feed
+        if: ${{ inputs.action == 'promote-stable' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $arguments = @(
+              "scripts/deploy.py", "stage-stable",
+              "--component", $env:COMPONENT,
+              "--candidate-tag", $env:CANDIDATE_TAG,
+              "--package", "${{ steps.verified.outputs.package_path }}",
+              "--provenance", "${{ steps.verified.outputs.provenance_path }}",
+              "--checksum", "${{ steps.verified.outputs.checksum_path }}",
+              "--feed-root", $env:FEED_ROOT
+          )
+          if ($env:STABLE_DATE) {
+              $arguments += @("--stable-date", $env:STABLE_DATE)
+          }
+          $json = & python @arguments
+          if ($LASTEXITCODE -ne 0) {
+              throw "Stable-feed preflight failed."
+          }
+          $result = ($json -join "`n") | ConvertFrom-Json
+          "already_published=$($result.alreadyPublished.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+      - name: Create or resume stable draft release
+        id: stable-draft
+        if: ${{ inputs.action == 'promote-stable' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $stableTag = "${{ steps.verified.outputs.stable_tag }}"
+          $tagRef = & git ls-remote --refs origin "refs/tags/$stableTag"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not check whether stable tag $stableTag already exists."
+          }
+          $releaseJson = & gh release view $stableTag --repo $env:GITHUB_REPOSITORY `
+              --json isDraft,isPrerelease 2>$null
+          $releaseStatus = $LASTEXITCODE
+          $releaseExists = $releaseStatus -eq 0
+          if ($releaseStatus -gt 1) {
+              throw "Could not inspect stable release $stableTag."
+          }
+          if ($releaseExists) {
+              $release = ($releaseJson -join "`n") | ConvertFrom-Json
+              if ($release.isPrerelease) {
+                  throw "Stable tag $stableTag already points to a prerelease."
+              }
+              if (-not $release.isDraft) {
+                  if ("${{ steps.feed.outputs.already_published }}" -eq "true") {
+                      "draft_exists=false" >> $env:GITHUB_OUTPUT
+                      "release_published=true" >> $env:GITHUB_OUTPUT
+                      exit 0
+                  }
+                  throw "Stable release $stableTag is already published; refusing to replace it."
+              }
+              $draftAssets = Join-Path $env:RUNNER_TEMP "saarelai-stable-draft-assets"
+              New-Item -ItemType Directory -Path $draftAssets -Force | Out-Null
+              gh release download $stableTag --repo $env:GITHUB_REPOSITORY `
+                  --pattern "provenance.json" --dir $draftAssets
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Could not verify the existing stable draft's provenance."
+              }
+              $existingProvenancePath = Join-Path $draftAssets "provenance.json"
+              if (-not (Test-Path -LiteralPath $existingProvenancePath)) {
+                  throw "Existing stable draft has no provenance asset."
+              }
+              $existingProvenance = Get-Content -LiteralPath $existingProvenancePath -Raw | ConvertFrom-Json
+              $candidateProvenance = Get-Content -LiteralPath "${{ steps.verified.outputs.provenance_path }}" -Raw | ConvertFrom-Json
+              if ($existingProvenance.candidateTag -ne $env:CANDIDATE_TAG -or
+                  $existingProvenance.packageSha256 -ne $candidateProvenance.packageSha256 -or
+                  $existingProvenance.sourceCommit -ne $candidateProvenance.sourceCommit) {
+                  throw "Existing stable draft is tied to a different candidate; refusing to replace it."
+              }
+              gh release upload $stableTag `
+                  "${{ steps.verified.outputs.package_path }}" `
+                  "${{ steps.verified.outputs.provenance_path }}" `
+                  "${{ steps.verified.outputs.checksum_path }}" `
+                  --repo $env:GITHUB_REPOSITORY --clobber
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Could not refresh stable draft assets from the verified candidate."
+              }
+          } else {
+              if ($tagRef) {
+                  throw "Stable Git tag $stableTag already exists without a GitHub Release."
+              }
+              $candidateNotes = & gh release view $env:CANDIDATE_TAG `
+                  --repo $env:GITHUB_REPOSITORY --json body --jq .body
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Could not read the candidate release notes."
+              }
+              $notesPath = Join-Path $env:RUNNER_TEMP "stable-release-notes.md"
+              @(
+                  "Promoted candidate ``$env:CANDIDATE_TAG`` for ``$env:COMPONENT``.",
+                  "",
+                  ($candidateNotes -join "`n")
+              ) | Set-Content -LiteralPath $notesPath -Encoding utf8
+              gh release create $stableTag `
+                  "${{ steps.verified.outputs.package_path }}" `
+                  "${{ steps.verified.outputs.provenance_path }}" `
+                  "${{ steps.verified.outputs.checksum_path }}" `
+                  --repo $env:GITHUB_REPOSITORY `
+                  --target "${{ steps.verified.outputs.source_commit }}" `
+                  --draft `
+                  --latest=false `
+                  --title "$env:COMPONENT v${{ steps.verified.outputs.version }}" `
+                  --notes-file $notesPath
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Could not create the stable draft release."
+              }
+          }
+          "draft_exists=true" >> $env:GITHUB_OUTPUT
+          "release_published=false" >> $env:GITHUB_OUTPUT
+
+      - name: Commit and push only selected stable feed paths
+        if: ${{ inputs.action == 'promote-stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $arguments = @(
+              "scripts/deploy.py", "stage-stable",
+              "--component", $env:COMPONENT,
+              "--candidate-tag", $env:CANDIDATE_TAG,
+              "--package", "${{ steps.verified.outputs.package_path }}",
+              "--provenance", "${{ steps.verified.outputs.provenance_path }}",
+              "--checksum", "${{ steps.verified.outputs.checksum_path }}",
+              "--feed-root", $env:FEED_ROOT,
+              "--commit-and-push"
+          )
+          if ($env:STABLE_DATE) {
+              $arguments += @("--stable-date", $env:STABLE_DATE)
+          }
+          python @arguments
+          if ($LASTEXITCODE -ne 0) {
+              throw "Stable feed update failed."
+          }
+
+      - name: Publish stable GitHub Release
+        if: ${{ inputs.action == 'promote-stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          gh release edit "${{ steps.verified.outputs.stable_tag }}" `
+              --repo $env:GITHUB_REPOSITORY --draft=false --latest=false
+          if ($LASTEXITCODE -ne 0) {
+              throw "Stable feed was updated but the draft release could not be published; rerun to resume safely."
+          }

@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'org.openstreetmap.josm' version '0.8.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+josm {
+    pluginName = 'ArkkiSnappi'
+    josmCompileVersion = 19439
+    manifest {
+        description = 'Quick and accurate building footprint mapping with a 2-axis snap grid'
+        mainClass = 'org.openstreetmap.josm.plugins.arkkisnappi.ArkkiSnappiPlugin'
+        minJosmVersion = 19439
+        minJavaVersion = 25
+        iconPath = 'images/mapmode/arkkisnappi.png'
+        author = 'Lumikeiju'
+        canLoadAtRuntime = true
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += [
+        '--add-exports=java.base/sun.security.action=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.plugins.jpeg=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.spi=ALL-UNNAMED'
+    ]
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += projectDir  // include images/ at project root in the JAR
+            include 'images/**'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.2'
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs += [
+        '--add-exports=java.base/sun.security.action=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.plugins.jpeg=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.spi=ALL-UNNAMED'
+    ]
+    maxHeapSize = '1g'
+    testLogging {
+        showStandardStreams = true
+    }
+}

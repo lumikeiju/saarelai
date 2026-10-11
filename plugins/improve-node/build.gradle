@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'org.openstreetmap.josm' version '0.8.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+josm {
+    pluginName = 'ImproveNode'
+    josmCompileVersion = 19439
+    manifest {
+        description = 'Quickly improve standalone node positions with one-click moves'
+        mainClass = 'org.openstreetmap.josm.plugins.improvenode.ImproveNodePlugin'
+        minJosmVersion = 19044
+        minJavaVersion = 25
+        iconPath = 'images/mapmode/improvenode.png'
+        author = 'Lumikeiju'
+        canLoadAtRuntime = true
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += [
+        '--add-exports=java.base/sun.security.action=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.plugins.jpeg=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.spi=ALL-UNNAMED'
+    ]
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += projectDir
+            include 'images/**'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}

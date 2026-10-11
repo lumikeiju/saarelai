@@ -15,3 +15,48 @@ updates:
       include: "scope"
     assignees:
       - "lumikeiju"
+  - package-ecosystem: "gradle"
+    directory: "/plugins/arkki-snappi"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "14:00"
+    ignore:
+      - dependency-name: "gradle"
+        update-types:
+          - "version-update:semver-major"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    assignees:
+      - "lumikeiju"
+  - package-ecosystem: "gradle"
+    directory: "/plugins/easy-pan"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "14:00"
+    ignore:
+      - dependency-name: "gradle"
+        update-types:
+          - "version-update:semver-major"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    assignees:
+      - "lumikeiju"
+  - package-ecosystem: "gradle"
+    directory: "/plugins/improve-node"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "14:00"
+    ignore:
+      - dependency-name: "gradle"
+        update-types:
+          - "version-update:semver-major"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    assignees:
+      - "lumikeiju"

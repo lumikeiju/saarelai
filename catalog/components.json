@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "repository": "lumikeiju/saarelai",
+  "stableBranch": "stable",
+  "stableRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
+  "buildJavaVersion": 21,
+  "targetJosmJavaVersion": 25,
+  "josmValidation": {
+    "version": 19646,
+    "artifactUrl": "https://github.com/JOSM/josm/releases/download/19646/JOSM-Windows-java25-19646.jar",
+    "sha256": "c99bface5780e219d312a86e6e9edc63c32c0ba0e811f13b228c709f4f8b7b45"
+  },
+  "components": [
+    {
+      "id": "plugins/arkki-snappi",
+      "kind": "plugin",
+      "path": "plugins/arkki-snappi",
+      "build": {
+        "tool": "gradle-wrapper",
+        "tasks": ["clean", "build"]
+      },
+      "validation": "plugin-jar-manifest",
+      "versionSource": {
+        "kind": "gradle-property",
+        "file": "gradle.properties",
+        "key": "version"
+      },
+      "artifactPath": "build/dist/ArkkiSnappi.jar",
+      "pluginMainClass": "org.openstreetmap.josm.plugins.arkkisnappi.ArkkiSnappiPlugin",
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "build/dist/ArkkiSnappi.jar",
+          "path": "plugins/arkki-snappi/ArkkiSnappi.jar"
+        },
+        {
+          "sourceKind": "plugin-list",
+          "path": "plugins/arkki-snappi/list"
+        }
+      ]
+    },
+    {
+      "id": "plugins/easy-pan",
+      "kind": "plugin",
+      "path": "plugins/easy-pan",
+      "build": {
+        "tool": "gradle-wrapper",
+        "tasks": ["clean", "build"]
+      },
+      "validation": "plugin-jar-manifest",
+      "versionSource": {
+        "kind": "gradle-property",
+        "file": "gradle.properties",
+        "key": "version"
+      },
+      "artifactPath": "build/dist/EasyPan.jar",
+      "pluginMainClass": "org.openstreetmap.josm.plugins.easypan.EasyPanPlugin",
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "build/dist/EasyPan.jar",
+          "path": "plugins/easy-pan/EasyPan.jar"
+        },
+        {
+          "sourceKind": "plugin-list",
+          "path": "plugins/easy-pan/list"
+        }
+      ]
+    },
+    {
+      "id": "plugins/improve-node",
+      "kind": "plugin",
+      "path": "plugins/improve-node",
+      "build": {
+        "tool": "gradle-wrapper",
+        "tasks": ["clean", "build"]
+      },
+      "validation": "plugin-jar-manifest",
+      "versionSource": {
+        "kind": "gradle-property",
+        "file": "gradle.properties",
+        "key": "version"
+      },
+      "artifactPath": "build/dist/ImproveNode.jar",
+      "pluginMainClass": "org.openstreetmap.josm.plugins.improvenode.ImproveNodePlugin",
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "build/dist/ImproveNode.jar",
+          "path": "plugins/improve-node/ImproveNode.jar"
+        },
+        {
+          "sourceKind": "plugin-list",
+          "path": "plugins/improve-node/list"
+        }
+      ]
+    },
+    {
+      "id": "presets/3d-building-details",
+      "kind": "preset",
+      "path": "presets/3d-building-details",
+      "validation": "josm-preset",
+      "sourceFile": "3d_building_details.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "3d_building_details.xml",
+          "path": "presets/3d-building-details/3d_building_details.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/lgbtq-plus",
+      "kind": "preset",
+      "path": "presets/lgbtq-plus",
+      "validation": "josm-preset",
+      "sourceFile": "lgbtq.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "lgbtq.xml",
+          "path": "presets/lgbtq-plus/lgbtq.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/public-transport",
+      "kind": "preset",
+      "path": "presets/public-transport",
+      "validation": "josm-preset",
+      "sourceFile": "public_transport.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "public_transport.xml",
+          "path": "presets/public-transport/public_transport.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/road-marking",
+      "kind": "preset",
+      "path": "presets/road-marking",
+      "validation": "josm-preset",
+      "sourceFile": "road_marking.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "road_marking.xml",
+          "path": "presets/road-marking/road_marking.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/rooftop-solar-panel",
+      "kind": "preset",
+      "path": "presets/rooftop-solar-panel",
+      "validation": "josm-preset",
+      "sourceFile": "rooftop_solar_panel.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "rooftop_solar_panel.xml",
+          "path": "presets/rooftop-solar-panel/rooftop_solar_panel.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/scl-poles",
+      "kind": "preset",
+      "path": "presets/scl-poles",
+      "validation": "josm-preset",
+      "sourceFile": "scl-poles.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "scl-poles.xml",
+          "path": "presets/scl-poles/scl-poles.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/seattle-city-light-pole",
+      "kind": "preset",
+      "path": "presets/seattle-city-light-pole",
+      "validation": "josm-preset",
+      "sourceFile": "seattle_city_light_pole.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "seattle_city_light_pole.xml",
+          "path": "presets/seattle-city-light-pole/seattle_city_light_pole.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/stops-and-signs",
+      "kind": "preset",
+      "path": "presets/stops-and-signs",
+      "validation": "josm-preset",
+      "sourceFile": "seattle_stops_and_signs.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "seattle_stops_and_signs.xml",
+          "path": "presets/stops-and-signs/seattle_stops_and_signs.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/trees",
+      "kind": "preset",
+      "path": "presets/trees",
+      "validation": "josm-preset",
+      "sourceFile": "tree.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "tree.xml",
+          "path": "presets/trees/tree.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/us-wa-address",
+      "kind": "preset",
+      "path": "presets/us-wa-address",
+      "validation": "josm-preset",
+      "sourceFile": "us-wa_addr.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "us-wa_addr.xml",
+          "path": "presets/us-wa-address/us-wa_addr.xml"
+        }
+      ]
+    },
+    {
+      "id": "presets/us-wa-gtfs",
+      "kind": "preset",
+      "path": "presets/us-wa-gtfs",
+      "validation": "josm-preset",
+      "sourceFile": "us-wa_gtfs.xml",
+      "versionSource": {
+        "kind": "preset-root-attribute",
+        "attribute": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "us-wa_gtfs.xml",
+          "path": "presets/us-wa-gtfs/us-wa_gtfs.xml"
+        }
+      ]
+    },
+    {
+      "id": "styles/tiger-stripes",
+      "kind": "style",
+      "path": "styles/tiger-stripes",
+      "validation": "josm-mapcss-style",
+      "sourceFile": "tiger-stripes.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "tiger-stripes.mapcss",
+          "path": "styles/tiger-stripes/tiger-stripes.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/contact-prefix",
+      "kind": "validator",
+      "path": "validators/contact-prefix",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "contact_prefix.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "contact_prefix.validator.mapcss",
+          "path": "validators/contact-prefix/contact_prefix.validator.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/public-transport",
+      "kind": "validator",
+      "path": "validators/public-transport",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "public_transport.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "public_transport.validator.mapcss",
+          "path": "validators/public-transport/public_transport.validator.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/route-ref-reformatter",
+      "kind": "validator",
+      "path": "validators/route-ref-reformatter",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "route_ref_reformatter.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "route_ref_reformatter.validator.mapcss",
+          "path": "validators/route-ref-reformatter/route_ref_reformatter.validator.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/seattle-city-light-pole",
+      "kind": "validator",
+      "path": "validators/seattle-city-light-pole",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "seattle_city_light_pole.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "seattle_city_light_pole.validator.mapcss",
+          "path": "validators/seattle-city-light-pole/seattle_city_light_pole.validator.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/tiger-cleanup",
+      "kind": "validator",
+      "path": "validators/tiger-cleanup",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "tiger_cleanup.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "tiger_cleanup.validator.mapcss",
+          "path": "validators/tiger-cleanup/tiger_cleanup.validator.mapcss"
+        }
+      ]
+    },
+    {
+      "id": "validators/typo-fixer",
+      "kind": "validator",
+      "path": "validators/typo-fixer",
+      "validation": "josm-mapcss-validator",
+      "sourceFile": "typo_fixer.validator.mapcss",
+      "versionSource": {
+        "kind": "mapcss-meta",
+        "field": "version"
+      },
+      "stableFiles": [
+        {
+          "sourceKind": "file",
+          "sourcePath": "typo_fixer.validator.mapcss",
+          "path": "validators/typo-fixer/typo_fixer.validator.mapcss"
+        }
+      ]
+    }
+  ]
+}

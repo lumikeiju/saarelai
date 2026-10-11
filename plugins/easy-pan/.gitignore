@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# Gradle and Java build outputs
+build/
+.gradle/
+
+# Local Python tooling
+.venv/
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+.env.*
+
+# Local / development
+.cache/
+/bin/
+*.wip
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+plugins {
+    id 'java'
+    id 'org.openstreetmap.josm' version '0.8.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+josm {
+    pluginName = 'EasyPan'
+    josmCompileVersion = 19439
+    manifest {
+        description = 'Reduce repetitive input while mapping by panning JOSM from pointer displacement'
+        mainClass = 'org.openstreetmap.josm.plugins.easypan.EasyPanPlugin'
+        minJosmVersion = 19044
+        minJavaVersion = 25
+        iconPath = 'images/mapmode/easypan.png'
+        author = 'Lumikeiju'
+        canLoadAtRuntime = true
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += [
+        '--add-exports=java.base/sun.security.action=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.plugins.jpeg=ALL-UNNAMED',
+        '--add-exports=java.desktop/com.sun.imageio.spi=ALL-UNNAMED'
+    ]
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += projectDir
+            include 'images/**'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}

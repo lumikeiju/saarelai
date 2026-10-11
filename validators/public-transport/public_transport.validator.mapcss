@@ -1,0 +1,21 @@
+meta
+{
+    title: "Public Transport";
+    version: "1.0_2025-06-29";
+    description: "Validator rules for public transport features";
+    author: "Lumikeiju";
+    link: "https://github.com/lumikeiju/saarelai/blob/main/validators/public-transport/public_transport.validator.mapcss";
+    baselanguage: "en";
+    min-josm-version: 19413;
+}
+
+/* Remove "bus=yes" on public transport features */
+relation["bus"="yes"]["public_transport"="stop_area"],
+node["bus"="yes"]["highway"="bus_stop"],
+node["bus"="yes"]["public_transport"="platform"],
+way["bus"="yes"]["public_transport"="platform"],
+way["bus"="yes"]["public_transport"="platform_edge"] {
+    throwError: "Remove unnecessary bus=yes tag";
+    fixRemove: "bus";
+    group: "Public Transport";
+}
