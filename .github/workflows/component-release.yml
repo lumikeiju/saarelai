@@ -64,7 +64,7 @@ jobs:
         shell: pwsh
         run: python -m unittest discover -s scripts/tests -v
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .cache/saarelai
           key: josm-core-19646-c99bface5780e219d312a86e6e9edc63c32c0ba0e811f13b228c709f4f8b7b45
