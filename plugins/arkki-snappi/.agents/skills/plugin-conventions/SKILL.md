@@ -35,7 +35,7 @@ paths:
 - `SnappiGrid`, `SnappiShrinkwrap`, `SnappiPreferences`, `ReferenceOrientationDetector` are stateless all-static utilities — no instance state.
 - `SnappiMode` owns all state: state machine + event handling only.
 - CCW winding default (JOSM convention); toggle via `SnappiPreferences.isCcwWinding()`.
-- No external dependencies beyond JOSM core and JUnit 5 (tests).
+- No external dependencies beyond JOSM core and JUnit 6 (tests).
 
 ## Tests
 

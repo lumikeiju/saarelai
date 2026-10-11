@@ -10,7 +10,7 @@ applyTo: "**"
 
 JOSM plugin · Package `org.openstreetmap.josm.plugins.arkkisnappi` · Map-mode shortcut `B` · Min JOSM 19439 · GPL-2.0-or-later (license header required on every source file)
 
-Version lives in `gradle.properties` (`version=0.7.0`). Use JDK 21 to run the Gradle 8.14.3 wrapper. The plugin manifest requires Java 25 at runtime; the build validator checks its Java 21 bytecode target.
+Version lives in `gradle.properties` (`version=0.7.0`). Use JDK 21 to run the Gradle 8.14.5 wrapper. The plugin manifest requires Java 25 at runtime; the build validator checks its Java 21 bytecode target.
 
 Gradle version is pinned to 8.x. The JOSM Gradle plugin 0.8.2 uses Provider.forUseAtConfigurationTime(), which was removed in Gradle 9. Do not upgrade the Gradle wrapper past 8.x until the JOSM Gradle plugin is updated. The Dependabot gradle ecosystem entry has been intentionally omitted for this reason.
 

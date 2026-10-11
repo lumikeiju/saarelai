@@ -15,7 +15,7 @@ Use the included Gradle wrapper from this directory:
 
 On Linux or macOS, use `./gradlew clean build`. The build runs the test suite and produces `build/dist/EasyPan.jar`.
 
-Use JDK 21 to run the Gradle 8.14.3 wrapper. The plugin manifest requires JOSM to run on Java 25; the plugin bytecode targets Java 21.
+Use JDK 21 to run the Gradle 8.14.5 wrapper. The plugin manifest requires JOSM to run on Java 25; the plugin bytecode targets Java 21.
 
 Update `CHANGELOG.md` for user-visible changes. Easy Pan follows Saarelai's independent component versioning and shared release process; no standalone release workflow is included here.
 

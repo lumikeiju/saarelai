@@ -33,7 +33,7 @@ Arkki Snappi is released independently through Saarelai's shared release process
 - Geometry/snapping in `EastNorth` only; never mix `EastNorth`, `LatLon`, and screen `Point`; always apply the Mercator projection correction.
 - `SnappiGrid`, `SnappiShrinkwrap`, `SnappiPreferences`, and `ReferenceOrientationDetector` are stateless all-static utilities — no instance state.
 - Preference keys: `arkki_snappi.<name>`; step values stored in real-world metres.
-- No external dependencies beyond JOSM core and JUnit 5 (tests).
+- No external dependencies beyond JOSM core and JUnit 6 (tests).
 - Unit tests cover pure EastNorth arithmetic only — keep them JOSM-free.
 
 For full detail see `.agents/instructions/main.instructions.md` and the auto-loading skills in `.agents/skills/`.

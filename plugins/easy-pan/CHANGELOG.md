@@ -9,7 +9,7 @@ All notable changes to Easy Pan are documented here, using the [Keep a Changelog
 
 ### Changed
 
-- Pin the Gradle wrapper to 8.14.3 because the JOSM Gradle plugin 0.8.2 is incompatible with Gradle 9
+- Keep the Gradle wrapper on the 8.x line (currently 8.14.5) because the JOSM Gradle plugin 0.8.2 is incompatible with Gradle 9
 - Set Java 25 as the minimum JOSM runtime while compiling Java 21 bytecode.
 
 ## v0.2.0 (2026-07-27)

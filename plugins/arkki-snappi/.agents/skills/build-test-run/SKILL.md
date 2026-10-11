@@ -19,7 +19,7 @@ paths:
 
 # Build, Test, Run
 
-Use JDK 21 to run the Gradle 8.14.3 wrapper. The plugin manifest requires Java 25 at runtime; release validation checks the Java 21 bytecode target.
+Use JDK 21 to run the Gradle 8.14.5 wrapper. The plugin manifest requires Java 25 at runtime; release validation checks the Java 21 bytecode target.
 
 ## Commands
 

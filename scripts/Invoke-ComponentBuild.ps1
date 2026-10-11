@@ -25,7 +25,7 @@ if ($entry.kind -ne "plugin") {
 
 $javaVersionText = (& java -version 2>&1 | Out-String)
 if ($LASTEXITCODE -ne 0 -or $javaVersionText -notmatch 'version "21(?:\.|")') {
-    throw "Plugin builds require JDK 21 to run the pinned Gradle 8.14.3/JOSM Gradle plugin. JOSM runtime target is Java 25; JDK 21 class files run on Java 25."
+    throw "Plugin builds require JDK 21 to run the pinned Gradle 8.14.5/JOSM Gradle plugin. JOSM runtime target is Java 25; JDK 21 class files run on Java 25."
 }
 
 $componentPath = Join-Path $repoRoot ($entry.path.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
