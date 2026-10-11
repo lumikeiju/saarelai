@@ -142,6 +142,14 @@ def load_registry(path: Path = REGISTRY_PATH) -> dict[str, Any]:
                 raise ReleaseError(f"Invalid stable file sourceKind in {component_id}: {source_kind}")
             if source_kind == "file":
                 safe_relative_path(item.get("sourcePath", ""))
+            introduced_in_version = item.get("introducedInVersion")
+            if introduced_in_version is not None and (
+                not isinstance(introduced_in_version, str)
+                or not _version_is_valid(introduced_in_version)
+            ):
+                raise ReleaseError(
+                    f"Invalid introducedInVersion in {component_id}: {introduced_in_version}"
+                )
         if component["kind"] == "plugin":
             build = component.get("build", {})
             if build.get("tool") != "gradle-wrapper" or build.get("tasks") != ["clean", "build"]:
@@ -455,6 +463,17 @@ def validate_component(
         raise ReleaseError(f"Component changelog is missing: {component['id']}")
 
     version = get_component_version(component, repo_root, require_release_version)
+    if version is not None:
+        for item in component["stableFiles"]:
+            introduced_in_version = item.get("introducedInVersion")
+            if (
+                introduced_in_version is not None
+                and compare_versions(version, introduced_in_version) < 0
+            ):
+                raise ReleaseError(
+                    f"Component {component['id']} version {version} predates stable file "
+                    f"{item['path']} introduced in {introduced_in_version}."
+                )
     if component["kind"] == "plugin":
         jar_path = contained_path(comp_root, component["artifactPath"])
         expected = version if version is not None else None
@@ -985,6 +1004,31 @@ def _ensure_feed_target(feed_root: Path, relative: str) -> Path:
     return target
 
 
+def _check_existing_stable_files(
+    component: dict[str, Any],
+    existing_files: list[bool],
+    current_version: str | None,
+) -> None:
+    if not any(existing_files) or all(existing_files):
+        return
+    if current_version is not None:
+        for item, exists in zip(component["stableFiles"], existing_files, strict=True):
+            if exists:
+                continue
+            introduced_in_version = item.get("introducedInVersion")
+            if (
+                isinstance(introduced_in_version, str)
+                and compare_versions(current_version, introduced_in_version) < 0
+            ):
+                continue
+            break
+        else:
+            return
+    raise ReleaseError(
+        f"Stable feed for {component['id']} is incomplete; refusing to overwrite a partial install."
+    )
+
+
 def stage_candidate(
     component: dict[str, Any],
     registry: dict[str, Any],
@@ -1034,14 +1078,10 @@ def stage_candidate(
         for item in component["stableFiles"]
     ]
     existing_component_files = [path.is_file() for path in current_component_files]
-    if any(existing_component_files) and not all(existing_component_files):
-        raise ReleaseError(
-            f"Stable feed for {component['id']} is incomplete; refusing to overwrite a partial install."
-        )
     current_path = contained_path(feed_root, first_component_file)
-    current_version: str | None = None
-    if current_path.is_file():
-        current_version = version_from_file(component, current_path)
+    current_version = version_from_file(component, current_path) if current_path.is_file() else None
+    _check_existing_stable_files(component, existing_component_files, current_version)
+    if current_version is not None:
         order = compare_versions(provenance["version"], current_version)
         if order < 0:
             raise ReleaseError(

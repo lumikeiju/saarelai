@@ -33,6 +33,33 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(
             sum(component["kind"] == "validator" for component in registry["components"]), 6
         )
+        tiger_stripes = deploy.get_component(registry, "styles/tiger-stripes")
+        self.assertEqual(
+            tiger_stripes["stableFiles"][1]["introducedInVersion"], "1.0.1"
+        )
+
+    def test_registry_rejects_invalid_stable_file_introduction_version(self):
+        registry = deploy.load_registry()
+        deploy.get_component(registry, "styles/tiger-stripes")["stableFiles"][1][
+            "introducedInVersion"
+        ] = "not-a-version"
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "components.json"
+            path.write_text(json.dumps(registry), encoding="utf-8")
+            with self.assertRaisesRegex(deploy.ReleaseError, "introducedInVersion"):
+                deploy.load_registry(path)
+
+    def test_component_release_version_must_reach_new_stable_file_version(self):
+        registry = deploy.load_registry()
+        component = deploy.get_component(registry, "styles/tiger-stripes")
+        component["stableFiles"][1]["introducedInVersion"] = "1.0.2"
+        with self.assertRaisesRegex(deploy.ReleaseError, "predates stable file"):
+            deploy.validate_component(
+                component,
+                registry,
+                require_release_version=True,
+                run_josm_parser=False,
+            )
 
     def test_rejects_paths_that_could_escape_component_or_feed(self):
         for value in ("../secret", "/absolute", "C:/absolute", "plugins/../other", "a\\b"):
@@ -131,6 +158,151 @@ class RegistryTests(unittest.TestCase):
             deploy.validate_with_josm(component, Path("tiger-stripes.mapcss"), registry)
 
         self.assertIs(run.call_args.kwargs["stdout"], sys.stderr)
+
+
+class StableFileTransitionTests(unittest.TestCase):
+    def test_new_stable_file_is_allowed_when_current_version_predates_it(self):
+        component = {
+            "id": "styles/demo",
+            "stableFiles": [
+                {"path": "styles/demo/demo.mapcss"},
+                {
+                    "path": "styles/demo/icons/demo.png",
+                    "introducedInVersion": "1.0.1",
+                },
+            ],
+        }
+        deploy._check_existing_stable_files(component, [True, False], "1.0.0")
+
+    def test_missing_existing_stable_file_is_still_rejected(self):
+        component = {
+            "id": "styles/demo",
+            "stableFiles": [
+                {"path": "styles/demo/demo.mapcss"},
+                {
+                    "path": "styles/demo/icons/demo.png",
+                    "introducedInVersion": "1.0.1",
+                },
+            ],
+        }
+        with self.assertRaisesRegex(deploy.ReleaseError, "partial install"):
+            deploy._check_existing_stable_files(component, [True, False], "1.0.1")
+        with self.assertRaisesRegex(deploy.ReleaseError, "partial install"):
+            deploy._check_existing_stable_files(component, [False, True], None)
+
+        component["stableFiles"][1].pop("introducedInVersion")
+        with self.assertRaisesRegex(deploy.ReleaseError, "partial install"):
+            deploy._check_existing_stable_files(component, [True, False], "1.0.0")
+
+    def test_candidate_adds_new_resource_to_existing_stable_feed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo = root / "source"
+            repo.mkdir()
+            subprocess.run(["git", "-C", str(repo), "init", "-q", "-b", "main"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Saarelai test"], check=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "config", "user.email", "saarelai-test@example.invalid"],
+                check=True,
+            )
+            subprocess.run(["git", "-C", str(repo), "config", "commit.gpgsign", "false"], check=True)
+
+            component_root = repo / "styles" / "demo"
+            (component_root / "icons").mkdir(parents=True)
+            (component_root / "CHANGELOG.md").write_text(
+                "# Changelog\n\n## v1.0.1 (2026-10-11)\n- Add style icon.\n",
+                encoding="utf-8",
+            )
+            (component_root / "demo.mapcss").write_text(
+                'meta {\n  title: "Demo";\n  version: "1.0.1";\n  date: "2026-10-11";\n'
+                "  min-josm-version: 19418;\n}\n",
+                encoding="utf-8",
+            )
+            (component_root / "icons" / "demo.png").write_bytes(b"test icon")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-qm", "style candidate"], check=True)
+
+            component = {
+                "id": "styles/demo",
+                "kind": "style",
+                "path": "styles/demo",
+                "sourceFile": "demo.mapcss",
+                "versionSource": {"kind": "mapcss-meta", "field": "version"},
+                "stableFiles": [
+                    {
+                        "sourceKind": "file",
+                        "sourcePath": "demo.mapcss",
+                        "path": "styles/demo/demo.mapcss",
+                    },
+                    {
+                        "sourceKind": "file",
+                        "sourcePath": "icons/demo.png",
+                        "path": "styles/demo/icons/demo.png",
+                        "introducedInVersion": "1.0.1",
+                    },
+                ],
+            }
+            registry = {
+                "repository": "lumikeiju/saarelai",
+                "stableBranch": "stable",
+                "stableRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
+                "buildJavaVersion": 21,
+                "targetJosmJavaVersion": 25,
+            }
+            candidate_output = root / "candidate"
+            with patch.object(deploy, "ROOT", repo), patch.dict(
+                deploy.os.environ, {"GITHUB_REF_NAME": ""}
+            ):
+                candidate = deploy.prepare_candidate(
+                    component,
+                    registry,
+                    candidate_output,
+                    run_number="8",
+                    run_attempt="1",
+                    source_ref="main",
+                    repo_root=repo,
+                )
+
+            feed = root / "feed"
+            feed.mkdir()
+            subprocess.run(["git", "-C", str(feed), "init", "-q", "-b", "stable"], check=True)
+            subprocess.run(["git", "-C", str(feed), "config", "user.name", "Saarelai test"], check=True)
+            subprocess.run(
+                ["git", "-C", str(feed), "config", "user.email", "saarelai-test@example.invalid"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(feed), "config", "commit.gpgsign", "false"],
+                check=True,
+            )
+            old_style = feed / "styles" / "demo" / "demo.mapcss"
+            old_style.parent.mkdir(parents=True)
+            old_style.write_text(
+                'meta {\n  title: "Demo";\n  version: "1.0.0";\n  date: "2025-01-01";\n'
+                "  min-josm-version: 19418;\n}\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["git", "-C", str(feed), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(feed), "commit", "-qm", "previous stable style"], check=True)
+
+            with patch.object(deploy, "ROOT", repo):
+                staged = deploy.stage_candidate(
+                    component,
+                    registry,
+                    candidate["candidateTag"],
+                    Path(candidate["packagePath"]),
+                    Path(candidate["provenancePath"]),
+                    Path(candidate["checksumPath"]),
+                    feed,
+                    run_josm_parser=False,
+                    repo_root=repo,
+                )
+
+            self.assertCountEqual(
+                staged["changedPaths"],
+                ["styles/demo/demo.mapcss", "styles/demo/icons/demo.png"],
+            )
+            self.assertFalse((feed / "styles" / "demo" / "icons" / "demo.png").exists())
 
 
 class CandidatePackageTests(unittest.TestCase):

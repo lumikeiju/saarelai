@@ -308,6 +308,12 @@
           "sourceKind": "file",
           "sourcePath": "tiger-stripes.mapcss",
           "path": "styles/tiger-stripes/tiger-stripes.mapcss"
+        },
+        {
+          "sourceKind": "file",
+          "sourcePath": "icons/tiger-stripes.png",
+          "path": "styles/tiger-stripes/icons/tiger-stripes.png",
+          "introducedInVersion": "1.0.1"
         }
       ]
     },

@@ -35,6 +35,8 @@ Use **Actions → Component release → Run workflow**:
 
 Candidate jobs never write to the `stable` branch. Stable promotion refuses stale/equal versions with changed bytes, partial component feeds, out-of-component paths, invalid candidate tags, and candidate packages that do not match their provenance. The workflow does not bump versions or edit component source/changelogs; prepare and commit those changes before dispatching a candidate.
 
+When adding a new persistent file to an already released component, set `introducedInVersion` on its `stableFiles` entry to the first component version that includes it. Promotion may then add that path when the current stable version predates it; missing files that were already required at the current stable version are still rejected as an incomplete feed.
+
 For a preset's first stable release, use `1.0_YYYY-MM-DD` in its root `version` attribute, with the actual planned publication date. If that date changes before stable promotion, update and commit the version, then prepare a new candidate; candidates cannot be retagged or have their payload rewritten during promotion.
 
 ## GitHub configuration and JOSM onboarding
