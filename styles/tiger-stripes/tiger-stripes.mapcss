@@ -1,7 +1,8 @@
 meta {
   title: "TIGER Stripes";
-  version: "1.0.0";
-  date: "2025-06-30";
+  icon: "icons/tiger-stripes.png";
+  version: "1.0.1";
+  date: "2026-10-11";
   description: "Highlights highways with TIGER tags.";
   author: "Lumikeiju";
   min-josm-version: "19418";
