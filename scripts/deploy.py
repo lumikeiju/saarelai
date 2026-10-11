@@ -421,7 +421,7 @@ def validate_with_josm(
         parser_kind or component["kind"],
         str(source_file),
     ]
-    process = subprocess.run(command, cwd=ROOT, check=False)
+    process = subprocess.run(command, cwd=ROOT, check=False, stdout=sys.stderr)
     if process.returncode != 0:
         raise ReleaseError(f"JOSM rejected {component['id']} source: {source_file.name}.")
 

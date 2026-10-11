@@ -121,6 +121,17 @@ class RegistryTests(unittest.TestCase):
                     component, repo_root=repo_root, require_release_version=True
                 )
 
+    def test_josm_parser_stdout_does_not_pollute_cli_json(self):
+        registry = deploy.load_registry()
+        component = deploy.get_component(registry, "styles/tiger-stripes")
+        completed = subprocess.CompletedProcess(args=[], returncode=0)
+        with patch.object(deploy, "java_runtime_version", return_value=25), patch.object(
+            deploy, "ensure_josm_core", return_value=Path("josm-core.jar")
+        ), patch.object(deploy.subprocess, "run", return_value=completed) as run:
+            deploy.validate_with_josm(component, Path("tiger-stripes.mapcss"), registry)
+
+        self.assertIs(run.call_args.kwargs["stdout"], sys.stderr)
+
 
 class CandidatePackageTests(unittest.TestCase):
     def _fixture(self, root: Path):
