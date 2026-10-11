@@ -22,7 +22,7 @@ updates:
       day: "sunday"
       time: "14:00"
     ignore:
-      - dependency-name: "gradle"
+      - dependency-name: "gradle-wrapper"
         update-types:
           - "version-update:semver-major"
     commit-message:
@@ -37,7 +37,7 @@ updates:
       day: "sunday"
       time: "14:00"
     ignore:
-      - dependency-name: "gradle"
+      - dependency-name: "gradle-wrapper"
         update-types:
           - "version-update:semver-major"
     commit-message:
@@ -52,7 +52,7 @@ updates:
       day: "sunday"
       time: "14:00"
     ignore:
-      - dependency-name: "gradle"
+      - dependency-name: "gradle-wrapper"
         update-types:
           - "version-update:semver-major"
     commit-message:

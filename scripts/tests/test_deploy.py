@@ -308,7 +308,9 @@ class CandidatePackageTests(unittest.TestCase):
             root = Path(temporary)
             repo, component, registry, _, _, _, _ = self._fixture(root)
             output = root / "candidate-output"
-            with patch.object(deploy, "ROOT", repo):
+            with patch.object(deploy, "ROOT", repo), patch.dict(
+                deploy.os.environ, {"GITHUB_REF_NAME": ""}
+            ):
                 result = deploy.prepare_candidate(
                     component,
                     registry,

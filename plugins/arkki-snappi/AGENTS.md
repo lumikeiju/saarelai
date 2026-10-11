@@ -14,7 +14,11 @@ Quick building-footprint mapping with a 2-axis snap grid. Package `org.openstree
 
 Use JDK 21 to run the Gradle 8.14.3 wrapper. The JOSM plugin manifest requires Java 25 at runtime; the build and release validator check that the JAR uses Java 21-or-earlier bytecode.
 
-Gradle version is pinned to 8.x. The JOSM Gradle plugin 0.8.2 uses Provider.forUseAtConfigurationTime(), which was removed in Gradle 9. Do not upgrade the Gradle wrapper past 8.x until the JOSM Gradle plugin is updated. The Dependabot gradle ecosystem entry has been intentionally omitted for this reason.
+Gradle version is pinned to 8.x. The JOSM Gradle plugin 0.8.2 uses
+`Provider.forUseAtConfigurationTime()`, which was removed in Gradle 9. Do not
+upgrade the Gradle wrapper past 8.x until the JOSM Gradle plugin is updated.
+The [Dependabot config](../../.github/dependabot.yml) ignores major
+`gradle-wrapper` updates for this component until then.
 
 ## Non-negotiable rules
 
