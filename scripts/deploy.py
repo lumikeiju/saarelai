@@ -554,6 +554,25 @@ def make_plugin_list(
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
+def validate_plugin_list_header(
+    component: dict[str, Any],
+    registry: dict[str, Any],
+    stable_jar_path: str,
+    plugin_list_bytes: bytes,
+) -> None:
+    try:
+        first_line = plugin_list_bytes.decode("utf-8").splitlines()[0]
+    except (UnicodeDecodeError, IndexError) as error:
+        raise ReleaseError("Candidate JOSM plugin update-site list has an invalid header.") from error
+    plugin_name, separator, jar_url = first_line.partition(";")
+    expected_name = f"{component['pluginName']}.jar"
+    expected_url = registry["stableRawBaseUrl"].rstrip("/") + "/" + safe_relative_path(
+        stable_jar_path
+    ).as_posix()
+    if not separator or plugin_name != expected_name or jar_url != expected_url:
+        raise ReleaseError("Candidate JOSM plugin update-site list has an unexpected stable URL.")
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -881,10 +900,12 @@ def verify_candidate(
             raise ReleaseError("Candidate JAR contains bytecode newer than the configured build target.")
         list_entry = next(item for item in component["stableFiles"] if item["sourceKind"] == "plugin-list")
         plugin_list_bytes = payload[list_entry["path"]]
-        first_line = plugin_list_bytes.decode("utf-8").splitlines()[0]
-        jar_url = registry["stableRawBaseUrl"].rstrip("/") + "/" + artifact_entry["path"]
-        if first_line != f"{Path(artifact_entry['path']).name};{jar_url}":
-            raise ReleaseError("Candidate JOSM plugin update-site list has an unexpected stable URL.")
+        validate_plugin_list_header(
+            component,
+            registry,
+            artifact_entry["path"],
+            plugin_list_bytes,
+        )
         if run_josm_parser:
             with tempfile.TemporaryDirectory(prefix="saarelai-plugin-list-") as temporary:
                 list_path = Path(temporary) / "list"

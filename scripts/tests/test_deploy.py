@@ -92,7 +92,7 @@ class RegistryTests(unittest.TestCase):
         improve_node = deploy.get_component(registry, "plugins/improve-node")
         self.assertEqual(improve_node["stableFiles"][0]["introducedInVersion"], "1.0.1")
 
-    def test_plugin_list_uses_display_name_with_kebab_artifact_path(self):
+    def test_plugin_list_uses_display_name_and_kebab_artifact_url(self):
         registry = deploy.load_registry()
         component = deploy.get_component(registry, "plugins/easy-pan")
         with tempfile.TemporaryDirectory() as temporary:
@@ -113,6 +113,27 @@ class RegistryTests(unittest.TestCase):
             "Easy Pan.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/"
             "stable/plugins/easy-pan/easy-pan.jar",
         )
+        deploy.validate_plugin_list_header(
+            component,
+            registry,
+            "plugins/easy-pan/easy-pan.jar",
+            generated,
+        )
+
+    def test_plugin_list_validation_rejects_wrong_download_url(self):
+        registry = deploy.load_registry()
+        component = deploy.get_component(registry, "plugins/easy-pan")
+
+        with self.assertRaisesRegex(deploy.ReleaseError, "unexpected stable URL"):
+            deploy.validate_plugin_list_header(
+                component,
+                registry,
+                "plugins/easy-pan/easy-pan.jar",
+                (
+                    "Easy Pan.jar;https://raw.githubusercontent.com/lumikeiju/"
+                    "saarelai/stable/plugins/easy-pan/EasyPan.jar\n"
+                ).encode("utf-8"),
+            )
 
     def test_component_release_version_must_reach_new_stable_file_version(self):
         registry = deploy.load_registry()
@@ -525,7 +546,7 @@ class CandidatePackageTests(unittest.TestCase):
             capture_output=True,
         ).stdout.strip()
 
-        jar_path = component_root / "build" / "dist" / "Demo.jar"
+        jar_path = component_root / "build" / "dist" / "demo-plugin.jar"
         jar_path.parent.mkdir(parents=True)
         manifest = (
             "Manifest-Version: 1.0\r\n"
@@ -539,10 +560,10 @@ class CandidatePackageTests(unittest.TestCase):
             jar.writestr("META-INF/MANIFEST.MF", manifest)
             jar.writestr("org/example/DemoPlugin.class", class_file)
 
-        stable_jar = "plugins/demo/Demo.jar"
+        stable_jar = "plugins/demo/demo-plugin.jar"
         stable_list = "plugins/demo/list"
         plugin_list = (
-            f"Demo.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/"
+            f"Demo Plugin.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/"
             f"stable/{stable_jar}\n"
         ).encode("utf-8")
         files = [
@@ -585,14 +606,14 @@ class CandidatePackageTests(unittest.TestCase):
             "id": "plugins/demo",
             "kind": "plugin",
             "path": "plugins/demo",
-            "artifactPath": "build/dist/Demo.jar",
-            "pluginName": "Demo",
+            "artifactPath": "build/dist/demo-plugin.jar",
+            "pluginName": "Demo Plugin",
             "pluginMainClass": "org.example.DemoPlugin",
             "versionSource": {"kind": "gradle-property", "file": "gradle.properties", "key": "version"},
             "stableFiles": [
                 {
                     "sourceKind": "file",
-                    "sourcePath": "build/dist/Demo.jar",
+                    "sourcePath": "build/dist/demo-plugin.jar",
                     "path": stable_jar,
                 },
                 {"sourceKind": "plugin-list", "path": stable_list},
@@ -651,9 +672,10 @@ class CandidatePackageTests(unittest.TestCase):
                     repo_root=repo,
                 )
                 self.assertCountEqual(
-                    result["changedPaths"], ["plugins/demo/Demo.jar", "plugins/demo/list"]
+                    result["changedPaths"],
+                    ["plugins/demo/demo-plugin.jar", "plugins/demo/list"],
                 )
-                self.assertFalse((feed / "plugins/demo/Demo.jar").exists())
+                self.assertFalse((feed / "plugins/demo/demo-plugin.jar").exists())
                 self.assertFalse((feed / "plugins/demo/list").exists())
                 self.assertFalse((feed / "plugins/easy-pan").exists())
 
@@ -752,7 +774,8 @@ class CandidatePackageTests(unittest.TestCase):
                     capture_output=True,
                 ).stdout.splitlines()
                 self.assertCountEqual(
-                    committed_paths, ["plugins/demo/Demo.jar", "plugins/demo/list"]
+                    committed_paths,
+                    ["plugins/demo/demo-plugin.jar", "plugins/demo/list"],
                 )
 
                 deploy.prepare_feed_worktree(repo, second_feed, "stable")
