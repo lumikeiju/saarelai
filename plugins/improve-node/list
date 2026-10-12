@@ -1,0 +1,17 @@
+ImproveNode.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/stable/plugins/improve-node/ImproveNode.jar
+	Manifest-Version: 1.0
+	Author: Lumikeiju
+	Created-By: 21.0.12 (Azul Systems, Inc.)
+	Gradle-Version: 8.14.6
+	Groovy-Version: 3.0.25
+	Plugin-Canloadatruntime: true
+	Plugin-Class: org.openstreetmap.josm.plugins.improvenode.ImproveNodePlug
+	 in
+	Plugin-Date: 2026-10-12T03:46:49.3027048Z
+	Plugin-Description: Quickly improve standalone node positions with one-c
+	 lick moves
+	Plugin-Early: false
+	Plugin-Icon: images/mapmode/improvenode.png
+	Plugin-Mainversion: 19044
+	Plugin-Minimum-Java-Version: 25
+	Plugin-Version: 1.0.0
