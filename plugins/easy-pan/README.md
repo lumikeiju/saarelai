@@ -34,7 +34,7 @@ On Linux or macOS, run `./gradlew clean build`. The Gradle build produces the pl
 
 ## Versioning and releases
 
-Easy Pan keeps an independent version stream; its current baseline is `0.2.0` in `gradle.properties`. Releases will use Saarelai's shared per-component process. Do not release from a component-specific workflow.
+Easy Pan keeps an independent version stream configured in `gradle.properties`. Releases use Saarelai's shared per-component process. Do not release from a component-specific workflow.
 
 See the [Saarelai overview](../../README.md) and [repository guidance](../../AGENTS.md).
 

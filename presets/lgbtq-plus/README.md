@@ -2,6 +2,6 @@
 
 A JOSM preset for `lgbtq=*` tagging, including feature friendliness and related signs or flags.
 
-The source file is [`lgbtq.xml`](lgbtq.xml). Its initial stable version is `1.0_2026-10-10`.
+The source file is [`lgbtq.xml`](lgbtq.xml); it contains the preset metadata and tagging options.
 
 Licensed under CC0 1.0 Universal; see [LICENSE](LICENSE). Follow the shared [Saarelai contribution and release policies](../../CONTRIBUTING.md).

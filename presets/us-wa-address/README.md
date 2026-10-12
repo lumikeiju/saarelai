@@ -2,6 +2,6 @@
 
 A simple address-tagging preset with United States and Washington State defaults.
 
-The source file is [`us-wa_addr.xml`](us-wa_addr.xml). Its initial stable version is `1.0_2026-10-10`.
+The source file is [`us-wa_addr.xml`](us-wa_addr.xml); it contains the preset metadata and tagging options.
 
 Licensed under CC0 1.0 Universal; see [LICENSE](LICENSE). Follow the shared [Saarelai contribution and release policies](../../CONTRIBUTING.md).

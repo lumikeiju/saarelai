@@ -13,7 +13,7 @@ Follow the repository-wide rules in [Saarelai AGENTS.md](../../../../AGENTS.md) 
 - Main class: `org.openstreetmap.josm.plugins.improvenode.ImproveNodePlugin`.
 - License: GPL-2.0-or-later. New Java source files use `// License: GPL v2 or later. For details, see LICENSE file.`.
 - Minimum supported JOSM version: `19044`; the build compiles against JOSM `19439`.
-- The component version is in `gradle.properties`; its existing baseline is `0.1.0`.
+- The component version is in `gradle.properties`; the released history starts at `0.1.0`.
 - Run this component's Gradle 8.x wrapper on JDK 21. The plugin manifest requires Java 25 at runtime while the compiled Java 21 bytecode runs on that target. Do not upgrade to Gradle 9 while JOSM Gradle plugin 0.8.2 is incompatible.
 - On Windows, run `.\gradlew.bat clean build`; on Linux or macOS, run `./gradlew clean build`.
 - No unit-test sources are currently tracked. The build validates compilation and packaging; do not claim a unit-test suite exists.

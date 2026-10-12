@@ -5,7 +5,7 @@
 
 JOSM plugin for efficiently improving standalone nodes.
 
-Requires JOSM 19044 or newer and Java 25 at runtime. ImproveNode is maintained in [Saarelai](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node).
+JOSM compatibility is declared in the plugin manifest. ImproveNode is maintained in [Saarelai](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node).
 
 Build with JDK 21 using the included Gradle wrapper; the plugin's Java 21 bytecode runs on the Java 25 JOSM target.
 
@@ -41,7 +41,7 @@ There are currently no tracked unit tests; the build validates compilation and p
 
 ## Versioning and releases
 
-ImproveNode keeps an independent version stream; its existing baseline is `0.1.0` in `gradle.properties`. Releases will use Saarelai's shared per-component process. Do not release from a component-specific workflow.
+ImproveNode keeps an independent version stream configured in `gradle.properties`. Releases use Saarelai's shared per-component process. Do not release from a component-specific workflow.
 
 See the [Saarelai overview](../../README.md) and [contributor guide](../../CONTRIBUTING.md).
 

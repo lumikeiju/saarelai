@@ -5,7 +5,7 @@
 
 [Semantic Versioning](https://semver.org/) · [Conventional Commits](https://www.conventionalcommits.org/) · [Keep a Changelog](https://keepachangelog.com/) · generated via [the component changelog prompt](.agents/prompts/changelog.prompt.md).
 
-## Unreleased
+## [v1.0.0] — 2026-10-11
 
 ### Changed
 

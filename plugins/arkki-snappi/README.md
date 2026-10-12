@@ -4,7 +4,7 @@
 
 JOSM plugin for quick and accurate building footprint mapping with a 2-axis snap grid.
 
-Requires JOSM 19439 or newer. The plugin adds a dedicated Snappi map mode with the `B` shortcut and builds a distributable JAR at `build/dist/ArkkiSnappi.jar`.
+JOSM compatibility is declared in the plugin manifest. The plugin adds a dedicated Snappi map mode with the `B` shortcut and builds a distributable JAR at `build/dist/ArkkiSnappi.jar`.
 
 ## What It Does
 
@@ -112,7 +112,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, code conven
 ## Release Notes
 
 - Package name: `org.openstreetmap.josm.plugins.arkkisnappi`
-- Minimum JOSM version: `19439`
 - Main class: `org.openstreetmap.josm.plugins.arkkisnappi.ArkkiSnappiPlugin`
 - License: GPL-2.0-or-later
 
