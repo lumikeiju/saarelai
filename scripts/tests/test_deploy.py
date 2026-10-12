@@ -253,7 +253,9 @@ class StableFileTransitionTests(unittest.TestCase):
                 current_version = deploy._current_stable_version(component, feed_root)
 
             self.assertEqual(current_version, "1.0.0")
-            read_version.assert_called_once_with(component, retired_jar)
+            self.assertEqual(read_version.call_count, 1)
+            self.assertEqual(read_version.call_args.args[0], component)
+            self.assertTrue(read_version.call_args.args[1].samefile(retired_jar))
             deploy._check_existing_stable_files(
                 component, [False, True], current_version
             )
