@@ -20,18 +20,19 @@
         "tasks": ["clean", "build"]
       },
       "validation": "plugin-jar-manifest",
+      "pluginName": "Arkki Snappi",
       "versionSource": {
         "kind": "gradle-property",
         "file": "gradle.properties",
         "key": "version"
       },
-      "artifactPath": "build/dist/ArkkiSnappi.jar",
+      "artifactPath": "build/dist/arkki-snappi.jar",
       "pluginMainClass": "org.openstreetmap.josm.plugins.arkkisnappi.ArkkiSnappiPlugin",
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "build/dist/ArkkiSnappi.jar",
-          "path": "plugins/arkki-snappi/ArkkiSnappi.jar"
+          "sourcePath": "build/dist/arkki-snappi.jar",
+          "path": "plugins/arkki-snappi/arkki-snappi.jar"
         },
         {
           "sourceKind": "plugin-list",
@@ -48,18 +49,19 @@
         "tasks": ["clean", "build"]
       },
       "validation": "plugin-jar-manifest",
+      "pluginName": "Easy Pan",
       "versionSource": {
         "kind": "gradle-property",
         "file": "gradle.properties",
         "key": "version"
       },
-      "artifactPath": "build/dist/EasyPan.jar",
+      "artifactPath": "build/dist/easy-pan.jar",
       "pluginMainClass": "org.openstreetmap.josm.plugins.easypan.EasyPanPlugin",
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "build/dist/EasyPan.jar",
-          "path": "plugins/easy-pan/EasyPan.jar"
+          "sourcePath": "build/dist/easy-pan.jar",
+          "path": "plugins/easy-pan/easy-pan.jar"
         },
         {
           "sourceKind": "plugin-list",
@@ -76,18 +78,21 @@
         "tasks": ["clean", "build"]
       },
       "validation": "plugin-jar-manifest",
+      "pluginName": "Improve Node",
       "versionSource": {
         "kind": "gradle-property",
         "file": "gradle.properties",
         "key": "version"
       },
-      "artifactPath": "build/dist/ImproveNode.jar",
+      "artifactPath": "build/dist/improve-node.jar",
       "pluginMainClass": "org.openstreetmap.josm.plugins.improvenode.ImproveNodePlugin",
+      "retiredStablePaths": ["plugins/improve-node/ImproveNode.jar"],
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "build/dist/ImproveNode.jar",
-          "path": "plugins/improve-node/ImproveNode.jar"
+          "sourcePath": "build/dist/improve-node.jar",
+          "path": "plugins/improve-node/improve-node.jar",
+          "introducedInVersion": "1.0.1"
         },
         {
           "sourceKind": "plugin-list",
@@ -100,7 +105,7 @@
       "kind": "preset",
       "path": "presets/3d-building-details",
       "validation": "josm-preset",
-      "sourceFile": "3d_building_details.xml",
+      "sourceFile": "3d-building-details.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -108,8 +113,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "3d_building_details.xml",
-          "path": "presets/3d-building-details/3d_building_details.xml"
+          "sourcePath": "3d-building-details.xml",
+          "path": "presets/3d-building-details/3d-building-details.xml"
         }
       ]
     },
@@ -118,7 +123,7 @@
       "kind": "preset",
       "path": "presets/lgbtq-plus",
       "validation": "josm-preset",
-      "sourceFile": "lgbtq.xml",
+      "sourceFile": "lgbtq-plus.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -126,8 +131,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "lgbtq.xml",
-          "path": "presets/lgbtq-plus/lgbtq.xml"
+          "sourcePath": "lgbtq-plus.xml",
+          "path": "presets/lgbtq-plus/lgbtq-plus.xml"
         }
       ]
     },
@@ -136,7 +141,7 @@
       "kind": "preset",
       "path": "presets/public-transport",
       "validation": "josm-preset",
-      "sourceFile": "public_transport.xml",
+      "sourceFile": "public-transport.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -144,8 +149,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "public_transport.xml",
-          "path": "presets/public-transport/public_transport.xml"
+          "sourcePath": "public-transport.xml",
+          "path": "presets/public-transport/public-transport.xml"
         }
       ]
     },
@@ -154,7 +159,7 @@
       "kind": "preset",
       "path": "presets/road-marking",
       "validation": "josm-preset",
-      "sourceFile": "road_marking.xml",
+      "sourceFile": "road-marking.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -162,8 +167,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "road_marking.xml",
-          "path": "presets/road-marking/road_marking.xml"
+          "sourcePath": "road-marking.xml",
+          "path": "presets/road-marking/road-marking.xml"
         }
       ]
     },
@@ -172,7 +177,7 @@
       "kind": "preset",
       "path": "presets/rooftop-solar-panel",
       "validation": "josm-preset",
-      "sourceFile": "rooftop_solar_panel.xml",
+      "sourceFile": "rooftop-solar-panel.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -180,26 +185,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "rooftop_solar_panel.xml",
-          "path": "presets/rooftop-solar-panel/rooftop_solar_panel.xml"
-        }
-      ]
-    },
-    {
-      "id": "presets/scl-poles",
-      "kind": "preset",
-      "path": "presets/scl-poles",
-      "validation": "josm-preset",
-      "sourceFile": "scl-poles.xml",
-      "versionSource": {
-        "kind": "preset-root-attribute",
-        "attribute": "version"
-      },
-      "stableFiles": [
-        {
-          "sourceKind": "file",
-          "sourcePath": "scl-poles.xml",
-          "path": "presets/scl-poles/scl-poles.xml"
+          "sourcePath": "rooftop-solar-panel.xml",
+          "path": "presets/rooftop-solar-panel/rooftop-solar-panel.xml"
         }
       ]
     },
@@ -208,7 +195,7 @@
       "kind": "preset",
       "path": "presets/seattle-city-light-pole",
       "validation": "josm-preset",
-      "sourceFile": "seattle_city_light_pole.xml",
+      "sourceFile": "seattle-city-light-pole.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -216,8 +203,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "seattle_city_light_pole.xml",
-          "path": "presets/seattle-city-light-pole/seattle_city_light_pole.xml"
+          "sourcePath": "seattle-city-light-pole.xml",
+          "path": "presets/seattle-city-light-pole/seattle-city-light-pole.xml"
         }
       ]
     },
@@ -226,7 +213,7 @@
       "kind": "preset",
       "path": "presets/stops-and-signs",
       "validation": "josm-preset",
-      "sourceFile": "seattle_stops_and_signs.xml",
+      "sourceFile": "stops-and-signs.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -234,8 +221,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "seattle_stops_and_signs.xml",
-          "path": "presets/stops-and-signs/seattle_stops_and_signs.xml"
+          "sourcePath": "stops-and-signs.xml",
+          "path": "presets/stops-and-signs/stops-and-signs.xml"
         }
       ]
     },
@@ -244,7 +231,7 @@
       "kind": "preset",
       "path": "presets/trees",
       "validation": "josm-preset",
-      "sourceFile": "tree.xml",
+      "sourceFile": "trees.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -252,17 +239,17 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "tree.xml",
-          "path": "presets/trees/tree.xml"
+          "sourcePath": "trees.xml",
+          "path": "presets/trees/trees.xml"
         }
       ]
     },
     {
-      "id": "presets/us-wa-address",
+      "id": "presets/us-wa-addr",
       "kind": "preset",
-      "path": "presets/us-wa-address",
+      "path": "presets/us-wa-addr",
       "validation": "josm-preset",
-      "sourceFile": "us-wa_addr.xml",
+      "sourceFile": "us-wa-addr.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -270,8 +257,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "us-wa_addr.xml",
-          "path": "presets/us-wa-address/us-wa_addr.xml"
+          "sourcePath": "us-wa-addr.xml",
+          "path": "presets/us-wa-addr/us-wa-addr.xml"
         }
       ]
     },
@@ -280,7 +267,7 @@
       "kind": "preset",
       "path": "presets/us-wa-gtfs",
       "validation": "josm-preset",
-      "sourceFile": "us-wa_gtfs.xml",
+      "sourceFile": "us-wa-gtfs.xml",
       "versionSource": {
         "kind": "preset-root-attribute",
         "attribute": "version"
@@ -288,8 +275,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "us-wa_gtfs.xml",
-          "path": "presets/us-wa-gtfs/us-wa_gtfs.xml"
+          "sourcePath": "us-wa-gtfs.xml",
+          "path": "presets/us-wa-gtfs/us-wa-gtfs.xml"
         }
       ]
     },
@@ -322,7 +309,7 @@
       "kind": "validator",
       "path": "validators/contact-prefix",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "contact_prefix.validator.mapcss",
+      "sourceFile": "contact-prefix.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -330,8 +317,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "contact_prefix.validator.mapcss",
-          "path": "validators/contact-prefix/contact_prefix.validator.mapcss"
+          "sourcePath": "contact-prefix.validator.mapcss",
+          "path": "validators/contact-prefix/contact-prefix.validator.mapcss"
         }
       ]
     },
@@ -340,7 +327,7 @@
       "kind": "validator",
       "path": "validators/public-transport",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "public_transport.validator.mapcss",
+      "sourceFile": "public-transport.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -348,8 +335,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "public_transport.validator.mapcss",
-          "path": "validators/public-transport/public_transport.validator.mapcss"
+          "sourcePath": "public-transport.validator.mapcss",
+          "path": "validators/public-transport/public-transport.validator.mapcss"
         }
       ]
     },
@@ -358,7 +345,7 @@
       "kind": "validator",
       "path": "validators/route-ref-reformatter",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "route_ref_reformatter.validator.mapcss",
+      "sourceFile": "route-ref-reformatter.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -366,8 +353,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "route_ref_reformatter.validator.mapcss",
-          "path": "validators/route-ref-reformatter/route_ref_reformatter.validator.mapcss"
+          "sourcePath": "route-ref-reformatter.validator.mapcss",
+          "path": "validators/route-ref-reformatter/route-ref-reformatter.validator.mapcss"
         }
       ]
     },
@@ -376,7 +363,7 @@
       "kind": "validator",
       "path": "validators/seattle-city-light-pole",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "seattle_city_light_pole.validator.mapcss",
+      "sourceFile": "seattle-city-light-pole.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -384,8 +371,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "seattle_city_light_pole.validator.mapcss",
-          "path": "validators/seattle-city-light-pole/seattle_city_light_pole.validator.mapcss"
+          "sourcePath": "seattle-city-light-pole.validator.mapcss",
+          "path": "validators/seattle-city-light-pole/seattle-city-light-pole.validator.mapcss"
         }
       ]
     },
@@ -394,7 +381,7 @@
       "kind": "validator",
       "path": "validators/tiger-cleanup",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "tiger_cleanup.validator.mapcss",
+      "sourceFile": "tiger-cleanup.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -402,8 +389,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "tiger_cleanup.validator.mapcss",
-          "path": "validators/tiger-cleanup/tiger_cleanup.validator.mapcss"
+          "sourcePath": "tiger-cleanup.validator.mapcss",
+          "path": "validators/tiger-cleanup/tiger-cleanup.validator.mapcss"
         }
       ]
     },
@@ -412,7 +399,7 @@
       "kind": "validator",
       "path": "validators/typo-fixer",
       "validation": "josm-mapcss-validator",
-      "sourceFile": "typo_fixer.validator.mapcss",
+      "sourceFile": "typo-fixer.validator.mapcss",
       "versionSource": {
         "kind": "mapcss-meta",
         "field": "version"
@@ -420,8 +407,8 @@
       "stableFiles": [
         {
           "sourceKind": "file",
-          "sourcePath": "typo_fixer.validator.mapcss",
-          "path": "validators/typo-fixer/typo_fixer.validator.mapcss"
+          "sourcePath": "typo-fixer.validator.mapcss",
+          "path": "validators/typo-fixer/typo-fixer.validator.mapcss"
         }
       ]
     }

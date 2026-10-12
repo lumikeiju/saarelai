@@ -240,13 +240,13 @@ public class SnappiMode extends MapMode
     // ------------------------------------------------------------------
 
     /**
-     * Creates the Snappi map mode with default keyboard shortcut B.
+     * Creates the Arkki Snappi map mode with default keyboard shortcut B.
      */
     public SnappiMode() {
-        super(tr("Snappi"), "arkkisnappi",
+        super(tr("Arkki Snappi"), "arkkisnappi",
                 tr("Draw buildings with a snap grid (click corners, then extrude edges)"),
                 Shortcut.registerShortcut("mapmode:snappi",
-                        tr("Mode: {0}", tr("Snappi")),
+                        tr("Mode: {0}", tr("Arkki Snappi")),
                         KeyEvent.VK_B, Shortcut.DIRECT),
                 ImageProvider.getCursor("crosshair", null));
     }

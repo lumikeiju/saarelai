@@ -4,7 +4,7 @@ applyTo: "**"
 
 <!-- @format -->
 
-# arkki-snappi — AI Instructions
+# Arkki Snappi — AI Instructions
 
 ## Identity & Build
 
@@ -15,12 +15,14 @@ Version lives in `gradle.properties` (`version=0.7.0`). Use JDK 21 to run this c
 Gradle version is pinned to 8.x. The JOSM Gradle plugin 0.8.2 uses Provider.forUseAtConfigurationTime(), which was removed in Gradle 9. Do not upgrade the Gradle wrapper past 8.x until the JOSM Gradle plugin is updated. The Dependabot gradle ecosystem entry has been intentionally omitted for this reason.
 
 ```bash
-./gradlew build        # → build/dist/ArkkiSnappi.jar (runs tests first)
+./gradlew build        # → build/dist/arkki-snappi.jar (runs tests first)
 ./gradlew test         # unit tests; no JOSM instance needed
 ./gradlew runJosm      # launch JOSM with the plugin pre-loaded
 ./gradlew clean        # remove build/
 # Windows: use .\gradlew.bat instead of ./gradlew
 ```
+
+Use `Arkki Snappi` as the JOSM display name; the local-development JAR is `build/localDist/arkki-snappi-dev.jar`.
 
 Build and release policies are shared at the Saarelai repository root. This component has no standalone release workflow; do not use the legacy branch-promotion process from its former repository. Saarelai's shared workflow will build only the selected component and preserve its independent version stream.
 

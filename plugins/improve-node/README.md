@@ -1,11 +1,11 @@
 <!-- @format -->
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 
-# ImproveNode
+# Improve Node
 
 JOSM plugin for efficiently improving standalone nodes.
 
-JOSM compatibility is declared in the plugin manifest. ImproveNode is maintained in [Saarelai](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node).
+JOSM compatibility is declared in the plugin manifest. Improve Node is maintained in [Saarelai](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node).
 
 Build with JDK 21 using the included Gradle wrapper; the plugin's Java 21 bytecode runs on the Java 25 JOSM target.
 
@@ -35,13 +35,13 @@ The development plugin update site is generated at:
 build/localDist/list
 ```
 
-Add that file URL as a JOSM plugin update site in expert mode to load `ImproveNode-dev` into a local JOSM instance.
+The distributable JAR is `build/dist/improve-node.jar`; the local-development JAR is `build/localDist/improve-node-dev.jar`. Add that file URL as a JOSM plugin update site in expert mode to load `Improve Node-dev` into a local JOSM instance.
 
 There are currently no tracked unit tests; the build validates compilation and packaging.
 
 ## Versioning and releases
 
-ImproveNode keeps an independent version stream configured in `gradle.properties`. Releases use Saarelai's shared per-component process. Do not release from a component-specific workflow.
+Improve Node keeps an independent version stream configured in `gradle.properties`. Releases use Saarelai's shared per-component process. Do not release from a component-specific workflow.
 
 See the [Saarelai overview](../../README.md) and [contributor guide](../../CONTRIBUTING.md).
 
@@ -55,4 +55,4 @@ Licensed under GPL-2.0-or-later. See [LICENSE](LICENSE) and the bundled [GPL v2]
 
 [ImproveWay](https://github.com/JOSM/improve-way) by [András Kolesár](https://github.com/kolesar-andras).
 
-[ImproveNode](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node) by [Amy Bordenave](https://github.com/Lumikeiju).
+[Improve Node](https://github.com/lumikeiju/saarelai/tree/main/plugins/improve-node) by [Amy Bordenave](https://github.com/Lumikeiju).

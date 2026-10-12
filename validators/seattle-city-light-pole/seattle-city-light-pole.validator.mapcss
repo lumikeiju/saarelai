@@ -1,10 +1,10 @@
 meta
 {
     title: "Seattle City Light Poles";
-    version: "1.1_2024-08-14";
+    version: "1.1_2026-10-11";
     description: "Validator rules for Seattle City Light Poles data";
     author: "Lumikeiju";
-    link: "https://github.com/lumikeiju/saarelai/blob/main/validators/seattle-city-light-pole/seattle_city_light_pole.validator.mapcss";
+    link: "https://github.com/lumikeiju/saarelai/blob/main/validators/seattle-city-light-pole/seattle-city-light-pole.validator.mapcss";
     baselanguage: "en";
     min-josm-version: 19160;
 }

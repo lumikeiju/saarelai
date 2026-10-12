@@ -7,10 +7,13 @@ All notable changes to Easy Pan are documented here, using the [Keep a Changelog
 
 ## Unreleased
 
+## v1.0.0 (2026-10-11)
+
 ### Changed
 
-- Keep the Gradle wrapper on the 8.x line because the JOSM Gradle plugin 0.8.2 is incompatible with Gradle 9
-- Set Java 25 as the minimum JOSM runtime while compiling Java 21 bytecode.
+- Display the plugin as **Easy Pan** in JOSM.
+- Use lower-kebab-case JAR filenames (`easy-pan.jar` and `easy-pan-dev.jar`).
+- Require Java 25 at runtime while compiling Java 21 bytecode.
 
 ## v0.2.0 (2026-07-27)
 

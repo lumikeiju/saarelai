@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-10">
-  <group name="Tree">
+<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-11">
+  <group name="Trees">
     <!-- Node: Tree -->
     <item name="Tree" type="node">
       <label text="Tree Node" />

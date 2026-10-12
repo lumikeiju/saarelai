@@ -2,21 +2,21 @@
 
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 
-# Contributing to ArkkiSnappi
+# Contributing to Arkki Snappi
 
-Thanks for contributing! This guide covers how to build, test, and submit changes to ArkkiSnappi, the JOSM building-footprint mapping plugin.
+Thanks for contributing! This guide covers how to build, test, and submit changes to Arkki Snappi, the JOSM building-footprint mapping plugin.
 
 ## Getting started
 
 Use JDK 21 to run the included Gradle wrapper. The produced plugin requires JOSM to run on Java 25 and uses Java 21 bytecode.
 
 ```bash
-./gradlew build        # → build/dist/ArkkiSnappi.jar (runs tests first)
+./gradlew build        # → build/dist/arkki-snappi.jar (runs tests first)
 ./gradlew test         # unit tests — pure EastNorth math, no JOSM instance needed
 ./gradlew runJosm      # launch JOSM with the plugin pre-loaded
 ```
 
-Windows: use `.\gradlew.bat` instead of `./gradlew`.
+Windows: use `.\gradlew.bat` instead of `./gradlew`. The local-development JAR is `build/localDist/arkki-snappi-dev.jar`.
 
 ## Development workflow
 

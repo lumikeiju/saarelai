@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-10">
-  <group name="SDOT Stops and Signs">
+<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-11">
+  <group name="Stops and Signs">
     <item name="01. Traffic Sign" type="node">
       <label text="Traffic Sign" />
       <combo key="traffic_sign:direction" text="Traffic Sign Direction (0-359)" values="0,90,180,270,N,S,E,W" default="" />

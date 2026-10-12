@@ -1,16 +1,18 @@
 <!-- @format -->
 
-# ArkkiSnappi — JOSM plugin
+# Arkki Snappi — JOSM plugin
 
 Quick building-footprint mapping with a 2-axis snap grid. Package `org.openstreetmap.josm.plugins.arkkisnappi` · map-mode shortcut `B` · min JOSM 19439 · License: `GPL-2.0-or-later`.
 
 ## Build & test
 
 ```bash
-./gradlew build        # → build/dist/ArkkiSnappi.jar (runs tests first)
+./gradlew build        # → build/dist/arkki-snappi.jar (runs tests first)
 ./gradlew test         # unit tests — pure EastNorth math, no JOSM needed
 ./gradlew runJosm      # launch JOSM with the plugin pre-loaded
 ```
+
+Use `Arkki Snappi` as the JOSM display name; the local-development JAR is `build/localDist/arkki-snappi-dev.jar`.
 
 Use JDK 21 to run this component's Gradle 8.x wrapper. The JOSM plugin manifest requires Java 25 at runtime; the build and release validator check that the JAR uses Java 21-or-earlier bytecode.
 

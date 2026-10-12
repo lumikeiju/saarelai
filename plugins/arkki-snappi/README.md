@@ -1,14 +1,14 @@
 <!-- @format -->
 
-# arkki-snappi
+# Arkki Snappi
 
 JOSM plugin for quick and accurate building footprint mapping with a 2-axis snap grid.
 
-JOSM compatibility is declared in the plugin manifest. The plugin adds a dedicated Snappi map mode with the `B` shortcut and builds a distributable JAR at `build/dist/ArkkiSnappi.jar`.
+JOSM compatibility is declared in the plugin manifest. The plugin adds a dedicated Arkki Snappi map mode with the `B` shortcut and builds a distributable JAR at `build/dist/arkki-snappi.jar`.
 
 ## What It Does
 
-**arkki-snappi** combines the rectangle-drawing workflow of [BuildingsTools](https://wiki.openstreetmap.org/wiki/JOSM/Plugins/BuildingsTools) with the edge-extrusion UX of [Extrude](https://josm.openstreetmap.de/wiki/Help/Action/Extrude), adding a snap grid that works in _both_ axes simultaneously.
+**Arkki Snappi** combines the rectangle-drawing workflow of [BuildingsTools](https://wiki.openstreetmap.org/wiki/JOSM/Plugins/BuildingsTools) with the edge-extrusion UX of [Extrude](https://josm.openstreetmap.de/wiki/Help/Action/Extrude), adding a snap grid that works in _both_ axes simultaneously.
 
 ### Workflow
 
@@ -26,7 +26,7 @@ Corners automatically snap to nearby existing nodes for shared-wall accuracy. Af
 
 | Key                       | Effect                                                                  |
 | ------------------------- | ----------------------------------------------------------------------- |
-| `B`                       | Activate Snappi mode                                                    |
+| `B`                       | Activate Arkki Snappi mode                                              |
 | `A`                       | Toggle cardinal grid alignment                                          |
 | `C`                       | Halve the current snap step size                                        |
 | `V`                       | Double the current snap step size                                       |
@@ -42,7 +42,7 @@ Corners automatically snap to nearby existing nodes for shared-wall accuracy. Af
 
 ## Settings
 
-Available in **JOSM Preferences → Snappi** tab, or via **More tools → Snappi settings…**:
+Available in the **JOSM Preferences → Arkki Snappi** tab, or via **More tools → Arkki Snappi settings…**:
 
 - **Step size** — Base snap increment (default: 1 ft / 0.3048 m), X and Y independently or linked
 - **Display unit** — `ft` or `m`
@@ -72,19 +72,21 @@ Build with JDK 21 using the included Gradle wrapper. The plugin manifest require
 ./gradlew build              # macOS / Linux
 ```
 
-The build runs the test suite and produces the release JAR at `build/dist/ArkkiSnappi.jar`.
+The build runs the test suite and produces the release JAR at `build/dist/arkki-snappi.jar`. Its local-development JAR is `build/localDist/arkki-snappi-dev.jar`.
 
 ### Releases
 
-Arkki Snappi keeps an independent version stream; its Gradle version is in `gradle.properties`. Releases will use Saarelai's shared per-component process and namespaced tags. The standalone repository's branch-promotion workflows are intentionally not included, and this component must not be released until Saarelai's shared release workflow is available. See the [Saarelai overview](../../README.md) and [repository guidance](../../AGENTS.md).
+Arkki Snappi keeps an independent version stream; its Gradle version is in `gradle.properties`. Releases use Saarelai's shared per-component process and namespaced tags. The standalone repository's branch-promotion workflows are intentionally not included. See the [Saarelai overview](../../README.md) and [repository guidance](../../AGENTS.md).
 
 ### Installing into JOSM
 
 **Option A — Copy the JAR manually:**
 
 ```sh
-copy build\dist\ArkkiSnappi.jar %APPDATA%\JOSM\plugins\ArkkiSnappi.jar
+copy build\dist\arkki-snappi.jar %APPDATA%\JOSM\plugins\arkki-snappi.jar
 ```
+
+Keep the lower-kebab-case filename `arkki-snappi.jar`.
 
 Restart JOSM, then enable the plugin in **Edit → Preferences → Plugins**.
 
@@ -94,7 +96,7 @@ The build also generates a local plugin list at `build/localDist/list`. In JOSM:
 
 1. **Edit → Preferences → Plugins** (enable expert mode first)
 2. Add this update site URL: `file:/<path-to-repo>/build/localDist/list`
-3. Click **Update plugins**, find ArkkiSnappi-dev, enable it
+3. Click **Update plugins**, find Arkki Snappi-dev, enable it
 4. After rebuilding, just restart JOSM — it picks up the latest JAR automatically
 
 ### Running JOSM with the plugin (one command)
@@ -117,7 +119,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, code conven
 
 ## Credits
 
-[arkki-snappi](https://github.com/lumikeiju/saarelai/tree/main/plugins/arkki-snappi) by [Amy Bordenave](https://github.com/Lumikeiju).
+[Arkki Snappi](https://github.com/lumikeiju/saarelai/tree/main/plugins/arkki-snappi) by [Amy Bordenave](https://github.com/Lumikeiju).
 
 ## License
 

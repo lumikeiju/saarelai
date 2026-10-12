@@ -1,10 +1,10 @@
 meta
 {
     title: "Public Transport";
-    version: "1.0_2025-06-29";
+    version: "1.0_2026-10-11";
     description: "Validator rules for public transport features";
     author: "Lumikeiju";
-    link: "https://github.com/lumikeiju/saarelai/blob/main/validators/public-transport/public_transport.validator.mapcss";
+    link: "https://github.com/lumikeiju/saarelai/blob/main/validators/public-transport/public-transport.validator.mapcss";
     baselanguage: "en";
     min-josm-version: 19413;
 }

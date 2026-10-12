@@ -17,9 +17,9 @@ import org.openstreetmap.josm.plugins.PluginInformation;
  *
  * <p>Registers {@link SnappiMode} as a new map mode when a map frame is
  * initialised, adding a toolbar toggle button that activates the snap-grid
- * building drawing mode. Also registers a "Snappi settings…" menu item
+ * building drawing mode. Also registers an "Arkki Snappi settings…" menu item
  * under <em>More tools</em>. Plugin settings are available in JOSM's main
- * Preferences window under a dedicated "Snappi" tab.</p>
+ * Preferences window under a dedicated "Arkki Snappi" tab.</p>
  *
  * @author Lumikeiju
  */
@@ -29,7 +29,7 @@ public class ArkkiSnappiPlugin extends Plugin {
 
     /**
      * Constructs the plugin from JOSM-provided metadata.
-     * Registers the "Snappi settings…" action under JOSM's More tools menu.
+     * Registers the "Arkki Snappi settings…" action under JOSM's More tools menu.
      *
      * @param info plugin information supplied by JOSM at load time
      */
@@ -37,14 +37,14 @@ public class ArkkiSnappiPlugin extends Plugin {
         super(info);
         MainMenu.add(MainApplication.getMenu().moreToolsMenu,
                 PreferencesAction.forPreferenceTab(
-                        tr("Snappi settings\u2026"),
-                        tr("Open the Snappi plugin preferences"),
+                        tr("Arkki Snappi settings\u2026"),
+                        tr("Open the Arkki Snappi plugin preferences"),
                         SnappiPreferencesDialog.class));
     }
 
     /**
      * Called by JOSM when the map frame changes (opened, closed, or replaced).
-     * Registers the Snappi mode button on the left-hand toolbar.
+     * Registers the Arkki Snappi mode button on the left-hand toolbar.
      *
      * @param oldFrame the previous map frame (null on first open)
      * @param newFrame the new map frame (null when closing)

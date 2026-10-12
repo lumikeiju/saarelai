@@ -20,12 +20,12 @@ class RegistryTests(unittest.TestCase):
             registry["stableRawBaseUrl"],
             "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
         )
-        self.assertEqual(len(registry["components"]), 21)
+        self.assertEqual(len(registry["components"]), 20)
         self.assertEqual(
             sum(component["kind"] == "plugin" for component in registry["components"]), 3
         )
         self.assertEqual(
-            sum(component["kind"] == "preset" for component in registry["components"]), 11
+            sum(component["kind"] == "preset" for component in registry["components"]), 10
         )
         self.assertEqual(
             sum(component["kind"] == "style" for component in registry["components"]), 1
@@ -36,6 +36,15 @@ class RegistryTests(unittest.TestCase):
         tiger_stripes = deploy.get_component(registry, "styles/tiger-stripes")
         self.assertEqual(
             tiger_stripes["stableFiles"][1]["introducedInVersion"], "1.0.1"
+        )
+        improve_node = deploy.get_component(registry, "plugins/improve-node")
+        self.assertEqual(
+            improve_node["retiredStablePaths"],
+            ["plugins/improve-node/ImproveNode.jar"],
+        )
+        self.assertNotIn(
+            "plugins/improve-node/ImproveNode.jar",
+            [item["path"] for item in improve_node["stableFiles"]],
         )
 
     def test_registry_rejects_invalid_stable_file_introduction_version(self):
@@ -48,6 +57,62 @@ class RegistryTests(unittest.TestCase):
             path.write_text(json.dumps(registry), encoding="utf-8")
             with self.assertRaisesRegex(deploy.ReleaseError, "introducedInVersion"):
                 deploy.load_registry(path)
+
+    def test_plugin_artifacts_use_kebab_case_and_display_names(self):
+        registry = deploy.load_registry()
+        expected = {
+            "plugins/easy-pan": (
+                "Easy Pan",
+                "build/dist/easy-pan.jar",
+                ["plugins/easy-pan/easy-pan.jar"],
+            ),
+            "plugins/arkki-snappi": (
+                "Arkki Snappi",
+                "build/dist/arkki-snappi.jar",
+                ["plugins/arkki-snappi/arkki-snappi.jar"],
+            ),
+            "plugins/improve-node": (
+                "Improve Node",
+                "build/dist/improve-node.jar",
+                ["plugins/improve-node/improve-node.jar"],
+            ),
+        }
+        for component_id, (plugin_name, artifact_path, expected_paths) in expected.items():
+            with self.subTest(component=component_id):
+                component = deploy.get_component(registry, component_id)
+                self.assertEqual(component["pluginName"], plugin_name)
+                self.assertEqual(component["artifactPath"], artifact_path)
+                artifact_entries = [
+                    item
+                    for item in component["stableFiles"]
+                    if item.get("sourcePath") == artifact_path
+                ]
+                self.assertEqual([item["path"] for item in artifact_entries], expected_paths)
+                self.assertEqual(component["stableFiles"][-1]["path"], f"{component_id}/list")
+        improve_node = deploy.get_component(registry, "plugins/improve-node")
+        self.assertEqual(improve_node["stableFiles"][0]["introducedInVersion"], "1.0.1")
+
+    def test_plugin_list_uses_display_name_with_kebab_artifact_path(self):
+        registry = deploy.load_registry()
+        component = deploy.get_component(registry, "plugins/easy-pan")
+        with tempfile.TemporaryDirectory() as temporary:
+            jar_path = Path(temporary) / "easy-pan.jar"
+            with zipfile.ZipFile(jar_path, "w") as jar:
+                jar.writestr(
+                    "META-INF/MANIFEST.MF",
+                    "Manifest-Version: 1.0\r\n"
+                    "Plugin-Class: org.openstreetmap.josm.plugins.easypan.EasyPanPlugin\r\n"
+                    "Plugin-Version: 1.0.0\r\n\r\n",
+                )
+            generated = deploy.make_plugin_list(
+                component, registry, jar_path, "plugins/easy-pan/easy-pan.jar"
+            )
+
+        self.assertEqual(
+            generated.decode("utf-8").splitlines()[0],
+            "Easy Pan.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/"
+            "stable/plugins/easy-pan/easy-pan.jar",
+        )
 
     def test_component_release_version_must_reach_new_stable_file_version(self):
         registry = deploy.load_registry()
@@ -162,6 +227,127 @@ class RegistryTests(unittest.TestCase):
 
 
 class StableFileTransitionTests(unittest.TestCase):
+    def test_retired_plugin_path_supplies_version_for_a_new_stable_jar_path(self):
+        component = {
+            "id": "plugins/improve-node",
+            "kind": "plugin",
+            "artifactPath": "build/dist/improve-node.jar",
+            "retiredStablePaths": ["plugins/improve-node/ImproveNode.jar"],
+            "stableFiles": [
+                {
+                    "sourceKind": "file",
+                    "sourcePath": "build/dist/improve-node.jar",
+                    "path": "plugins/improve-node/improve-node.jar",
+                    "introducedInVersion": "1.0.1",
+                },
+                {"sourceKind": "plugin-list", "path": "plugins/improve-node/list"},
+            ],
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            feed_root = Path(temporary)
+            retired_jar = feed_root / "plugins" / "improve-node" / "ImproveNode.jar"
+            retired_jar.parent.mkdir(parents=True)
+            retired_jar.write_bytes(b"old stable JAR")
+            (retired_jar.parent / "list").write_text("old list\n", encoding="utf-8")
+            with patch.object(deploy, "version_from_file", return_value="1.0.0") as read_version:
+                current_version = deploy._current_stable_version(component, feed_root)
+
+            self.assertEqual(current_version, "1.0.0")
+            read_version.assert_called_once_with(component, retired_jar)
+            deploy._check_existing_stable_files(
+                component, [False, True], current_version
+            )
+
+    def test_stable_promotion_removes_retired_plugin_path(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo = root / "source"
+            repo.mkdir()
+            remote = root / "remote.git"
+            subprocess.run(["git", "init", "--bare", "-q", str(remote)], check=True)
+            feed_root = root / "feed"
+            feed_root.mkdir()
+            subprocess.run(["git", "-C", str(feed_root), "init", "-q", "-b", "stable"], check=True)
+            subprocess.run(["git", "-C", str(feed_root), "config", "user.name", "Feed test"], check=True)
+            subprocess.run(
+                ["git", "-C", str(feed_root), "config", "user.email", "feed-test@example.invalid"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(feed_root), "config", "commit.gpgsign", "false"],
+                check=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(feed_root), "remote", "add", "origin", str(remote)],
+                check=True,
+            )
+            retired_path = feed_root / "plugins" / "improve-node" / "ImproveNode.jar"
+            retired_path.parent.mkdir(parents=True)
+            retired_path.write_bytes(b"old JAR")
+            (retired_path.parent / "list").write_text("old list\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(feed_root), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(feed_root), "commit", "-qm", "old plugin feed"], check=True)
+
+            component = {
+                "id": "plugins/improve-node",
+                "kind": "plugin",
+                "artifactPath": "build/dist/improve-node.jar",
+                "pluginMainClass": "org.openstreetmap.josm.plugins.improvenode.ImproveNodePlugin",
+                "retiredStablePaths": ["plugins/improve-node/ImproveNode.jar"],
+                "stableFiles": [
+                    {
+                        "sourceKind": "file",
+                        "sourcePath": "build/dist/improve-node.jar",
+                        "path": "plugins/improve-node/improve-node.jar",
+                        "introducedInVersion": "1.0.1",
+                    },
+                    {"sourceKind": "plugin-list", "path": "plugins/improve-node/list"},
+                ],
+            }
+            registry = {"stableBranch": "stable"}
+            payload = {
+                "plugins/improve-node/improve-node.jar": b"new JAR",
+                "plugins/improve-node/list": b"new list\n",
+            }
+            with (
+                patch.object(
+                    deploy,
+                    "verify_candidate",
+                    return_value=({"version": "1.0.1"}, payload),
+                ),
+                patch.object(deploy, "version_from_file", return_value="1.0.0"),
+            ):
+                result = deploy.stage_candidate(
+                    component,
+                    registry,
+                    "plugins/improve-node/v1.0.1-rc.1.1",
+                    root / "candidate.zip",
+                    root / "provenance.json",
+                    root / "candidate.zip.sha256",
+                    feed_root,
+                    commit_and_push=True,
+                    run_josm_parser=False,
+                    repo_root=repo,
+                )
+
+            self.assertFalse(retired_path.exists())
+            self.assertTrue((retired_path.parent / "improve-node.jar").is_file())
+            self.assertEqual(
+                result["changedPaths"],
+                [
+                    "plugins/improve-node/ImproveNode.jar",
+                    "plugins/improve-node/improve-node.jar",
+                    "plugins/improve-node/list",
+                ],
+            )
+            committed_paths = subprocess.run(
+                ["git", "--git-dir", str(remote), "ls-tree", "-r", "--name-only", "stable"],
+                check=True,
+                text=True,
+                capture_output=True,
+            ).stdout.splitlines()
+            self.assertNotIn("plugins/improve-node/ImproveNode.jar", committed_paths)
+
     def test_new_stable_file_is_allowed_when_current_version_predates_it(self):
         component = {
             "id": "styles/demo",
@@ -398,6 +584,7 @@ class CandidatePackageTests(unittest.TestCase):
             "kind": "plugin",
             "path": "plugins/demo",
             "artifactPath": "build/dist/Demo.jar",
+            "pluginName": "Demo",
             "pluginMainClass": "org.example.DemoPlugin",
             "versionSource": {"kind": "gradle-property", "file": "gradle.properties", "key": "version"},
             "stableFiles": [

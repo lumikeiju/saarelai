@@ -30,7 +30,7 @@ Use JDK 21 to run this component's Gradle 8.x wrapper. The plugin manifest requi
 .\gradlew.bat clean build
 ```
 
-On Linux or macOS, run `./gradlew clean build`. The Gradle build produces the plugin artifact at `build/dist/EasyPan.jar` and a development update-site list at `build/localDist/list`. To test a local build, add that list as a file-based JOSM plugin update site in expert preferences.
+On Linux or macOS, run `./gradlew clean build`. The Gradle build produces the plugin artifact at `build/dist/easy-pan.jar`, the local-development JAR at `build/localDist/easy-pan-dev.jar`, and a development update-site list at `build/localDist/list`. To test a local build, add that list as a file-based JOSM plugin update site in expert preferences.
 
 ## Versioning and releases
 

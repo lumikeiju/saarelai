@@ -1,6 +1,6 @@
 ---
 name: plugin-conventions
-description: Coding conventions and patterns for the arkki-snappi JOSM plugin — formatting, license headers, preferences, code structure, and testing rules. Use when writing or reviewing Java code, adding a preference, or adding a test.
+description: Coding conventions and patterns for the Arkki Snappi JOSM plugin — formatting, license headers, preferences, code structure, and testing rules. Use when writing or reviewing Java code, adding a preference, or adding a test.
 triggers:
     - conventions
     - formatting

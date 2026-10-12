@@ -10,7 +10,7 @@ java {
 }
 
 josm {
-    pluginName = 'ImproveNode'
+    pluginName = 'Improve Node'
     josmCompileVersion = 19439
     manifest {
         description = 'Quickly improve standalone node positions with one-click moves'
@@ -20,6 +20,58 @@ josm {
         iconPath = 'images/mapmode/improvenode.png'
         author = 'Lumikeiju'
         canLoadAtRuntime = true
+    }
+}
+
+// Keep the display name separate from the lower-kebab-case artifact paths.
+def distributableJarName = 'improve-node.jar'
+def localDevelopmentJarName = 'improve-node-dev.jar'
+
+tasks.named('dist') {
+    destinationDirectory.set(layout.buildDirectory.dir('plugin-dist-internal'))
+}
+
+tasks.register('assembleKebabDistJar', Copy) {
+    dependsOn tasks.named('dist')
+    from(tasks.named('dist').flatMap { it.archiveFile })
+    into(layout.buildDirectory.dir('dist'))
+    rename { distributableJarName }
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('assembleKebabDistJar')
+}
+
+tasks.named('localDistJar') {
+    destinationDirectory.set(layout.buildDirectory.dir('plugin-local-dist-internal'))
+}
+
+tasks.named('localDist') {
+    outputs.file(layout.buildDirectory.file("localDist/${localDevelopmentJarName}"))
+    doLast {
+        def sourceJar = tasks.named('localDistJar').get().archiveFile.get().asFile
+        def targetJar = layout.buildDirectory.file("localDist/${localDevelopmentJarName}").get().asFile
+        if (!sourceJar.isFile()) {
+            throw new GradleException("Local-development JAR is missing: ${sourceJar}")
+        }
+        targetJar.parentFile.mkdirs()
+        targetJar.bytes = sourceJar.bytes
+
+        def listFile = layout.buildDirectory.file('localDist/list').get().asFile
+        def listContents = listFile.getText('UTF-8')
+        if (!listContents.contains("${sourceJar.name};")) {
+            throw new GradleException("Local update-site list does not reference ${sourceJar.name}")
+        }
+        def previousLocalJar = layout.buildDirectory.file("localDist/${sourceJar.name}").get().asFile
+        def updatedList = listContents
+                .replace(sourceJar.toURI().toString(), targetJar.toURI().toString())
+                .replace(sourceJar.absolutePath.replace('\\', '/'), targetJar.absolutePath.replace('\\', '/'))
+                .replace(previousLocalJar.toURI().toString(), targetJar.toURI().toString())
+                .replace(previousLocalJar.absolutePath.replace('\\', '/'), targetJar.absolutePath.replace('\\', '/'))
+        if (!updatedList.contains("${sourceJar.name};${targetJar.toURI()}")) {
+            throw new GradleException("Local update-site list does not point to ${targetJar}")
+        }
+        listFile.setText(updatedList, 'UTF-8')
     }
 }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-10">
-  <group name="Road Markings">
+<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" version="1.0_2026-10-11">
+  <group name="Road Marking">
     <!-- Node: Stop Line -->
     <item name="00. Stop Line (Node)" type="node" icon="">
       <label text="Stop Line Node" />

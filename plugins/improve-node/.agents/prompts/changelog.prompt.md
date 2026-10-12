@@ -4,13 +4,13 @@ description: Generate a changelog entry from recent commits and prepend it to CH
 
 <!-- @format -->
 
-# Generate ImproveNode Changelog Entry
+# Generate Improve Node Changelog Entry
 
 Generate a new `CHANGELOG.md` entry from commits since the last release. Project uses [Conventional Commits](https://www.conventionalcommits.org/) + [SemVer](https://semver.org/) + [Keep a Changelog](https://keepachangelog.com/).
 
-## 1. Collect ImproveNode commits
+## 1. Collect Improve Node commits
 
-From the Saarelai repository root (PowerShell), filter both the namespaced ImproveNode tags and the component path so another component's release or commits are not included:
+From the Saarelai repository root (PowerShell), filter the namespaced Improve Node tags and the `plugins/improve-node` component path so another component's release or commits are not included:
 
 ```powershell
 $lastTag = git describe --tags --abbrev=0 --match 'plugins/improve-node/v*' 2>$null

@@ -150,12 +150,28 @@ def load_registry(path: Path = REGISTRY_PATH) -> dict[str, Any]:
                 raise ReleaseError(
                     f"Invalid introducedInVersion in {component_id}: {introduced_in_version}"
                 )
+        retired_paths = component.get("retiredStablePaths", [])
+        if not isinstance(retired_paths, list):
+            raise ReleaseError(f"retiredStablePaths must be an array in {component_id}")
+        local_retired_paths: set[str] = set()
+        for retired_path in retired_paths:
+            feed_path = safe_relative_path(retired_path).as_posix()
+            if not feed_path.startswith(component_id + "/"):
+                raise ReleaseError(f"Retired stable path is outside its component: {feed_path}")
+            if feed_path in stable_paths or feed_path in local_paths or feed_path in local_retired_paths:
+                raise ReleaseError(f"Duplicate or active retired stable path: {feed_path}")
+            local_retired_paths.add(feed_path)
         if component["kind"] == "plugin":
             build = component.get("build", {})
             if build.get("tool") != "gradle-wrapper" or build.get("tasks") != ["clean", "build"]:
                 raise ReleaseError(f"Unsupported plugin build declaration: {component_id}")
             if component.get("validation") != "plugin-jar-manifest":
                 raise ReleaseError(f"Unsupported plugin validator declaration: {component_id}")
+            plugin_name = component.get("pluginName")
+            if not isinstance(plugin_name, str) or not plugin_name or any(
+                character in plugin_name for character in ("/", "\\", ";", "\r", "\n")
+            ):
+                raise ReleaseError(f"Plugin identity is missing or invalid in registry: {component_id}")
             safe_relative_path(component.get("artifactPath", ""))
             if not component.get("pluginMainClass"):
                 raise ReleaseError(f"Plugin main class is missing in registry: {component_id}")
@@ -533,7 +549,7 @@ def make_plugin_list(
     download_url = registry["stableRawBaseUrl"].rstrip("/") + "/" + safe_relative_path(
         stable_jar_path
     ).as_posix()
-    lines = [f"{Path(stable_jar_path).name};{download_url}"]
+    lines = [f"{component['pluginName']}.jar;{download_url}"]
     lines.extend("\t" + line for line in main_lines)
     return ("\n".join(lines) + "\n").encode("utf-8")
 
@@ -1028,6 +1044,23 @@ def _check_existing_stable_files(
     )
 
 
+def _current_stable_version(component: dict[str, Any], feed_root: Path) -> str | None:
+    version_source_path = (
+        component["artifactPath"] if component["kind"] == "plugin" else component["sourceFile"]
+    )
+    for item in component["stableFiles"]:
+        if item["sourceKind"] != "file" or item.get("sourcePath") != version_source_path:
+            continue
+        stable_path = contained_path(feed_root, item["path"])
+        if stable_path.is_file():
+            return version_from_file(component, stable_path)
+    for retired_path in component.get("retiredStablePaths", []):
+        stable_path = contained_path(feed_root, retired_path)
+        if stable_path.is_file():
+            return version_from_file(component, stable_path)
+    return None
+
+
 def stage_candidate(
     component: dict[str, Any],
     registry: dict[str, Any],
@@ -1060,25 +1093,17 @@ def stage_candidate(
     if initial_status:
         raise ReleaseError("Stable feed worktree must be clean before staging a component.")
     allowed_paths = set(_expected_stable_paths(component))
+    retired_paths = set(component.get("retiredStablePaths", []))
     changed_paths: list[str] = []
 
-    first_component_file = next(
-        (
-            item["path"]
-            for item in component["stableFiles"]
-            if item["sourceKind"] == "file"
-        ),
-        None,
-    )
-    if first_component_file is None:
+    if not any(item["sourceKind"] == "file" for item in component["stableFiles"]):
         raise ReleaseError(f"No source artifact is declared for {component['id']}.")
     current_component_files = [
         contained_path(feed_root, item["path"])
         for item in component["stableFiles"]
     ]
     existing_component_files = [path.is_file() for path in current_component_files]
-    current_path = contained_path(feed_root, first_component_file)
-    current_version = version_from_file(component, current_path) if current_path.is_file() else None
+    current_version = _current_stable_version(component, feed_root)
     _check_existing_stable_files(component, existing_component_files, current_version)
     if current_version is not None:
         order = compare_versions(provenance["version"], current_version)
@@ -1108,6 +1133,14 @@ def stage_candidate(
         data = payload[relative]
         if not target.is_file() or sha256_file(target) != sha256_bytes(data):
             changed_paths.append(relative)
+    for relative in sorted(retired_paths):
+        target = contained_path(feed_root, relative)
+        if target.is_symlink():
+            raise ReleaseError(f"Retired stable path must not be a symbolic link: {relative}")
+        if target.is_file():
+            changed_paths.append(relative)
+        elif target.exists():
+            raise ReleaseError(f"Retired stable path is not a regular file: {relative}")
 
     if not changed_paths:
         return {
@@ -1130,10 +1163,14 @@ def stage_candidate(
         }
 
     for relative in changed_paths:
-        target = _ensure_feed_target(feed_root, relative)
-        target.write_bytes(payload[relative])
+        target = contained_path(feed_root, relative)
+        if relative in retired_paths:
+            target.unlink()
+        else:
+            target = _ensure_feed_target(feed_root, relative)
+            target.write_bytes(payload[relative])
 
-    run_git(feed_root, "add", "--", *sorted(changed_paths))
+    run_git(feed_root, "add", "-A", "--", *sorted(changed_paths))
     staged_paths = {
         line.replace("\\", "/")
         for line in run_git(feed_root, "diff", "--cached", "--name-only").splitlines()

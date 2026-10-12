@@ -12,3 +12,5 @@ Follow [AGENTS.md](../../AGENTS.md) and Saarelai's repository-level guidance. Fo
 Gradle is pinned to 8.x because JOSM Gradle plugin 0.8.2 uses `Provider.forUseAtConfigurationTime()`, removed in Gradle 9. Do not upgrade the wrapper past 8.x until the JOSM Gradle plugin is updated, and keep dependency updates compatible with the pinned toolchain.
 
 Run this component's Gradle 8.x wrapper on JDK 21. It compiles to Java 21 bytecode and declares Java 25 as the JOSM runtime minimum.
+
+Use `josm.pluginName = 'Easy Pan'` as the JOSM display name. Keep the component ID and Java package/class identifiers unchanged. The distributable JAR is `build/dist/easy-pan.jar`; the local-development JAR is `build/localDist/easy-pan-dev.jar`.

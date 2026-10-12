@@ -1,9 +1,9 @@
 <!-- @format -->
 <!-- SPDX-License-Identifier: GPL-2.0-or-later -->
 
-# ArkkiSnappi - Changelog
+# Arkki Snappi - Changelog
 
-All notable changes to ArkkiSnappi are documented in this file.
+All notable changes to Arkki Snappi are documented in this file.
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
@@ -11,9 +11,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
+## v1.0.0 (2026-10-11)
+
 ### Changed
 
-- Set Java 25 as the minimum JOSM runtime while keeping the build bytecode at Java 21.
+- Display the plugin as **Arkki Snappi** in JOSM.
+- Use lower-kebab-case JAR filenames (`arkki-snappi.jar` and `arkki-snappi-dev.jar`).
+- Require Java 25 at runtime while compiling Java 21 bytecode.
 
 ## v0.7.0 (2026-09-06)
 
@@ -52,10 +56,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## v0.1.0 (2026-04-04)
 
 - Released the initial version
-- Added Snappi map mode (`B`) for accurate building-footprint mapping with a two-axis snap grid
+- Added the Arkki Snappi map mode (`B`) for accurate building-footprint mapping with a two-axis snap grid
 - Added reference orientation detection from cardinal alignment, selected ways, or nearby buildings
 - Added independent X/Y snapping with configurable steps, presets, and keyboard shortcuts
 - Added edge extrusion via drag handles and edge-click splitting
 - Added auto-simplification and shrinkwrap on finish
-- Added Snappi preferences for steps, snapping, tags, and colors
+- Added Arkki Snappi preferences for steps, snapping, tags, and colors
 - Added unit tests for grid geometry and shrinkwrap logic

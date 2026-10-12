@@ -109,7 +109,7 @@ public class SnappiPreferencesDialog extends DefaultTabPreferenceSetting {
      */
     public SnappiPreferencesDialog() {
         super("preferences/arkkisnappi",
-                tr("Snappi"),
+                tr("Arkki Snappi"),
                 tr("Settings for the arkki-snappi building drawing plugin"));
     }
 

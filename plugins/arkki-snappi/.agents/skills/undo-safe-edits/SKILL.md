@@ -1,6 +1,6 @@
 ---
 name: undo-safe-edits
-description: Undo-safe OSM data mutation for arkki-snappi — every write must go through JOSM Command objects. Use when adding, changing, or deleting nodes/ways, or when keeping the wayCorners cache in sync.
+description: Undo-safe OSM data mutation for Arkki Snappi — every write must go through JOSM Command objects. Use when adding, changing, or deleting nodes/ways, or when keeping the wayCorners cache in sync.
 triggers:
     - command pattern
     - undo

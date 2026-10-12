@@ -13,7 +13,7 @@ Use the included Gradle wrapper from this directory:
 .\gradlew.bat clean build
 ```
 
-On Linux or macOS, use `./gradlew clean build`. The build runs the test suite and produces `build/dist/EasyPan.jar`.
+On Linux or macOS, use `./gradlew clean build`. The build runs the test suite and produces `build/dist/easy-pan.jar` (and the local-development JAR `build/localDist/easy-pan-dev.jar`).
 
 Use JDK 21 to run this component's Gradle 8.x wrapper. The plugin manifest requires JOSM to run on Java 25; the plugin bytecode targets Java 21.
 

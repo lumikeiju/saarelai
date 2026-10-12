@@ -1,10 +1,10 @@
 meta
 {
 	title: "Contact Prefix";
-	version: "1.1_2024-12-27";
+	version: "1.1_2026-10-11";
 	description: "Validator rules suggesting contact prefix";
 	author: "Lumikeiju";
-	link: "https://github.com/lumikeiju/saarelai/blob/main/validators/contact-prefix/contact_prefix.validator.mapcss";
+	link: "https://github.com/lumikeiju/saarelai/blob/main/validators/contact-prefix/contact-prefix.validator.mapcss";
 	baselanguage: "en";
 	min-josm-version: 19160;
 }
