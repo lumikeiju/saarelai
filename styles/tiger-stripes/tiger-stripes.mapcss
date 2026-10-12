@@ -1,7 +1,7 @@
 meta {
   title: "TIGER Stripes";
-  icon: "icons/tiger-stripes.png";
-  version: "1.0.1";
+  icon: "https://raw.githubusercontent.com/lumikeiju/saarelai/stable/styles/tiger-stripes/icons/tiger-stripes.png";
+  version: "1.0.2";
   date: "2026-10-11";
   description: "Highlights highways with TIGER tags.";
   author: "Lumikeiju";
