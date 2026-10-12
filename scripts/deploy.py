@@ -684,8 +684,7 @@ def prepare_candidate(
         f"- Candidate tag: `{candidate_tag}`\n"
         f"- Component changelog: "
         f"[`CHANGELOG.md`](https://github.com/{registry['repository']}/blob/"
-        f"{source_commit}/{component['path']}/CHANGELOG.md)\n"
-        "- Candidate releases do not update the `stable` branch or any stable URL.\n",
+        f"{source_commit}/{component['path']}/CHANGELOG.md)\n",
         encoding="utf-8",
     )
     result = {

@@ -508,6 +508,11 @@ class CandidatePackageTests(unittest.TestCase):
             self.assertEqual(
                 deploy.sha256_file(Path(result["packagePath"])), result["packageSha256"]
             )
+            release_notes = Path(result["releaseNotesPath"]).read_text(encoding="utf-8")
+            self.assertNotIn(
+                "Candidate releases do not update the `stable` branch or any stable URL.",
+                release_notes,
+            )
 
     def test_first_stable_promotion_creates_feed_branch_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as temporary:
