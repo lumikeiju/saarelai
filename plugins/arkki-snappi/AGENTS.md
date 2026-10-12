@@ -12,7 +12,7 @@ Quick building-footprint mapping with a 2-axis snap grid. Package `org.openstree
 ./gradlew runJosm      # launch JOSM with the plugin pre-loaded
 ```
 
-Use JDK 21 to run the Gradle 8.14.5 wrapper. The JOSM plugin manifest requires Java 25 at runtime; the build and release validator check that the JAR uses Java 21-or-earlier bytecode.
+Use JDK 21 to run this component's Gradle 8.x wrapper. The JOSM plugin manifest requires Java 25 at runtime; the build and release validator check that the JAR uses Java 21-or-earlier bytecode.
 
 Gradle version is pinned to 8.x. The JOSM Gradle plugin 0.8.2 uses
 `Provider.forUseAtConfigurationTime()`, which was removed in Gradle 9. Do not

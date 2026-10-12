@@ -13,7 +13,7 @@ If the desired component has not yet been migrated, do not copy it in as an ad h
 
 ## Changes and validation
 
-The supported JOSM runtime target is Java 25. The pinned Gradle 8.14.5/JOSM Gradle plugin 0.8.2 build stack runs on JDK 21, so plugin builds use Java 21 bytecode and declare `Plugin-Minimum-Java-Version: 25`. Install JDK 21 for building and Azul JDK 25 for the target JOSM runtime. The release validator checks both the JAR bytecode and the manifest requirement.
+The supported JOSM runtime target is Java 25. Plugin builds use their Gradle 8.x wrappers with JOSM Gradle plugin 0.8.2 on JDK 21, so plugin builds use Java 21 bytecode and declare `Plugin-Minimum-Java-Version: 25`. Install JDK 21 for building and Azul JDK 25 for the target JOSM runtime. The release validator checks both the JAR bytecode and the manifest requirement.
 
 - Keep each change focused on one component or one clearly shared repository concern.
 - Use a branch named `type/scope/short-description`, such as `fix/arkki-snappi/snap-preview`.

@@ -24,7 +24,7 @@ $$velocity = velocity \times falloffMultiplier^{elapsedSeconds \times 60}$$
 
 Easy Pan is maintained in [Saarelai](https://github.com/lumikeiju/saarelai/tree/main/plugins/easy-pan). Use the included Gradle wrapper from this directory.
 
-Use JDK 21 to run the Gradle 8.14.5 wrapper. The plugin manifest requires JOSM to run on Java 25; the plugin bytecode targets Java 21.
+Use JDK 21 to run this component's Gradle 8.x wrapper. The plugin manifest requires JOSM to run on Java 25; the plugin bytecode targets Java 21.
 
 ```powershell
 .\gradlew.bat clean build

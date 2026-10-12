@@ -4,7 +4,7 @@
 
 ## Validation and build runtimes
 
-The supported JOSM runtime target is Azul Java 25. JOSM's plugin Gradle integration is pinned to Gradle 8.14.5/JOSM Gradle plugin 0.8.2, so the Windows build workflow runs Gradle on JDK 21. The Java plugins compile to Java 21 bytecode and declare `Plugin-Minimum-Java-Version: 25` in their JAR manifests. This lets the existing build stack remain stable while JOSM runs the plugins on Java 25.
+The supported JOSM runtime target is Azul Java 25. Plugin builds use their Gradle 8.x wrappers with JOSM Gradle plugin 0.8.2 on JDK 21. The Java plugins compile to Java 21 bytecode and declare `Plugin-Minimum-Java-Version: 25` in their JAR manifests. This lets the existing build stack remain stable while JOSM runs the plugins on Java 25.
 
 Resource validation runs JOSM 19646's preset and MapCSS parsers on Java 25 using the Windows Java 25 JAR from the [official JOSM 19646 GitHub prerelease](https://github.com/JOSM/josm/releases/tag/19646). Its SHA-256 is pinned in `components.json`.
 
