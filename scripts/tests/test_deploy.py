@@ -53,13 +53,14 @@ class RegistryTests(unittest.TestCase):
         registry = deploy.load_registry()
         component = deploy.get_component(registry, "styles/tiger-stripes")
         component["stableFiles"][1]["introducedInVersion"] = "1.0.2"
-        with self.assertRaisesRegex(deploy.ReleaseError, "predates stable file"):
-            deploy.validate_component(
-                component,
-                registry,
-                require_release_version=True,
-                run_josm_parser=False,
-            )
+        with patch.object(deploy, "get_component_version", return_value="1.0.1"):
+            with self.assertRaisesRegex(deploy.ReleaseError, "predates stable file"):
+                deploy.validate_component(
+                    component,
+                    registry,
+                    require_release_version=True,
+                    run_josm_parser=False,
+                )
 
     def test_rejects_paths_that_could_escape_component_or_feed(self):
         for value in ("../secret", "/absolute", "C:/absolute", "plugins/../other", "a\\b"):
