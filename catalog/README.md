@@ -2,6 +2,35 @@
 
 `components.json` is the source of truth for component IDs, native version selectors, build artifacts, and persistent `stable` branch paths. It deliberately does not contain component version values.
 
+## Latest stable and candidate releases
+
+This table is updated by the **Component release** workflow after publishing a GitHub Release. Dates show when GitHub last updated each release. Missing releases are shown as `N/A`.
+
+<!-- release-status:start -->
+| Component | Stable version | Stable updated | Candidate version | Candidate updated |
+| --- | --- | --- | --- | --- |
+| `plugins/arkki-snappi` | N/A | N/A | N/A | N/A |
+| `plugins/easy-pan` | N/A | N/A | [1.0.0-rc.14.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-rc.14.1) | 2026-10-12 |
+| `plugins/improve-node` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0) | 2026-10-12 | [1.0.0-rc.11.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0-rc.11.1) | 2026-10-12 |
+| `presets/3d-building-details` | N/A | N/A | N/A | N/A |
+| `presets/lgbtq-plus` | N/A | N/A | N/A | N/A |
+| `presets/public-transport` | N/A | N/A | N/A | N/A |
+| `presets/road-marking` | N/A | N/A | N/A | N/A |
+| `presets/rooftop-solar-panel` | N/A | N/A | N/A | N/A |
+| `presets/seattle-city-light-pole` | N/A | N/A | N/A | N/A |
+| `presets/stops-and-signs` | N/A | N/A | N/A | N/A |
+| `presets/trees` | N/A | N/A | N/A | N/A |
+| `presets/us-wa-addr` | N/A | N/A | N/A | N/A |
+| `presets/us-wa-gtfs` | N/A | N/A | N/A | N/A |
+| `styles/tiger-stripes` | [1.0.2](https://github.com/lumikeiju/saarelai/releases/tag/styles%2Ftiger-stripes%2Fv1.0.2) | 2026-10-12 | [1.0.2-rc.9.1](https://github.com/lumikeiju/saarelai/releases/tag/styles%2Ftiger-stripes%2Fv1.0.2-rc.9.1) | 2026-10-12 |
+| `validators/contact-prefix` | N/A | N/A | N/A | N/A |
+| `validators/public-transport` | N/A | N/A | N/A | N/A |
+| `validators/route-ref-reformatter` | N/A | N/A | N/A | N/A |
+| `validators/seattle-city-light-pole` | N/A | N/A | N/A | N/A |
+| `validators/tiger-cleanup` | N/A | N/A | N/A | N/A |
+| `validators/typo-fixer` | N/A | N/A | N/A | N/A |
+<!-- release-status:end -->
+
 ## Validation and build runtimes
 
 The supported JOSM runtime target is Azul Java 25. Plugin builds use their Gradle 8.x wrappers with JOSM Gradle plugin 0.8.2 on JDK 21. The Java plugins compile to Java 21 bytecode and declare `Plugin-Minimum-Java-Version: 25` in their JAR manifests. This lets the existing build stack remain stable while JOSM runs the plugins on Java 25.
@@ -45,6 +74,7 @@ For a preset's first stable release, use `1.0_YYYY-MM-DD` in its root `version` 
 
 - Create a GitHub environment named `stable` before using stable promotion. This deployment environment is separate from the Git branch also named `stable`. For this solo-maintainer setup, do not require environment reviewers; the workflow is manually dispatched and requires the `confirm_stable` checkbox after you test the exact candidate. Optionally restrict deployments to `main`. If other maintainers later become available, add required reviewers.
 - Require the `Component validation gate` status check on `main`; it aggregates utility tests and only the affected component matrix jobs.
+- The **Component release** workflow commits the generated release table to the default branch. If branch rules protect that branch, allow the workflow's `GITHUB_TOKEN` to push its documentation update.
 - If branch rules protect `stable`, permit the workflow's `GITHUB_TOKEN` to create fast-forward commits while preventing force-pushes and deletion. The workflow serializes all stable writes and never force-pushes.
 - Ensure the default branch, `stable`, tags, and GitHub releases are public so JOSM can retrieve the unauthenticated raw URLs.
 - The first successful stable promotion initializes the otherwise empty `stable` branch. There is no release or feed branch created by adding these utilities.

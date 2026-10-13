@@ -149,6 +149,7 @@ jobs:
           "notes_path=$($result.releaseNotesPath)" >> $env:GITHUB_OUTPUT
 
       - name: Publish candidate GitHub prerelease
+        id: candidate_publish
         if: ${{ inputs.action == 'candidate' }}
         shell: pwsh
         run: |
@@ -384,6 +385,7 @@ jobs:
           }
 
       - name: Publish stable GitHub Release
+        id: stable_publish
         if: ${{ inputs.action == 'promote-stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
         shell: pwsh
         run: |
@@ -392,4 +394,53 @@ jobs:
               --repo $env:GITHUB_REPOSITORY --draft=false --latest=false
           if ($LASTEXITCODE -ne 0) {
               throw "Stable feed was updated but the draft release could not be published; rerun to resume safely."
+          }
+
+      - uses: actions/checkout@v7
+        if: ${{ success() && ((inputs.action == 'candidate' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: release-status-source
+
+      - name: Update release summary
+        if: ${{ success() && ((inputs.action == 'candidate' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        working-directory: release-status-source
+        shell: pwsh
+        run: python scripts/release_status.py
+
+      - name: Commit updated release summary
+        if: ${{ success() && ((inputs.action == 'candidate' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        working-directory: release-status-source
+        shell: pwsh
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          git config user.name "github-actions[bot]"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not configure the release-summary commit identity."
+          }
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not configure the release-summary commit identity."
+          }
+          git add catalog/README.md
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not stage the updated release summary."
+          }
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+              Write-Output "Release summary is already current."
+              exit 0
+          }
+          if ($LASTEXITCODE -ne 1) {
+              throw "Could not check for release-summary changes."
+          }
+          git commit -m "docs(catalog): update release status"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not commit the updated release summary."
+          }
+          git push origin "HEAD:$env:DEFAULT_BRANCH"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not push the updated release summary to the default branch."
           }
