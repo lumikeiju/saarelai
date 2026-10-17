@@ -18,7 +18,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | `presets/road-marking` | N/A | N/A | [1.0_2026-10-11-beta.25.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Froad-marking%2Fv1.0_2026-10-11-beta.25.1) | 2026-10-17 |
 | `presets/rooftop-solar-panel` | N/A | N/A | [1.0_2026-10-11-beta.24.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Frooftop-solar-panel%2Fv1.0_2026-10-11-beta.24.1) | 2026-10-17 |
 | `presets/seattle-city-light-pole` | N/A | N/A | [1.0_2026-10-11-beta.27.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Fseattle-city-light-pole%2Fv1.0_2026-10-11-beta.27.1) | 2026-10-17 |
-| `presets/stops-and-signs` | N/A | N/A | N/A | N/A |
+| `presets/stops-and-signs` | N/A | N/A | [1.0_2026-10-11-beta.28.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Fstops-and-signs%2Fv1.0_2026-10-11-beta.28.1) | 2026-10-17 |
 | `presets/trees` | N/A | N/A | N/A | N/A |
 | `presets/us-wa-addr` | N/A | N/A | N/A | N/A |
 | `presets/us-wa-gtfs` | N/A | N/A | N/A | N/A |
