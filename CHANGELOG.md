@@ -10,6 +10,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Changed
 
+- Rename the stable publication action from `promote-stable` to `stable`.
 - Derive preset version dates from committed XML instead of requiring a planned publication date for beta creation and stable promotion.
 - Remove the four-job parallelism cap from component validation, allowing GitHub Actions to run component jobs up to the account's available runner capacity.
 - Require a relevant changelog update after every development change.

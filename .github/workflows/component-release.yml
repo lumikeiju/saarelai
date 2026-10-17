@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - beta
-          - promote-stable
+          - stable
       component:
         description: Category-qualified component ID from catalog/components.json
         required: true
@@ -32,10 +32,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 90
     concurrency:
-      group: ${{ inputs.action == 'promote-stable' && 'stable-feed' || 'beta-feed' }}
+      group: ${{ inputs.action == 'stable' && 'stable-feed' || 'beta-feed' }}
       cancel-in-progress: false
     environment:
-      name: ${{ inputs.action == 'promote-stable' && 'stable' || 'beta' }}
+      name: ${{ inputs.action == 'stable' && 'stable' || 'beta' }}
     permissions:
       contents: write
     env:
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.action == 'promote-stable' && inputs.candidate_tag || github.sha }}
+          ref: ${{ inputs.action == 'stable' && inputs.candidate_tag || github.sha }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v7
@@ -76,7 +76,7 @@ jobs:
           }
 
       - name: Require explicit stable approval
-        if: ${{ inputs.action == 'promote-stable' && inputs.confirm_stable != true }}
+        if: ${{ inputs.action == 'stable' && inputs.confirm_stable != true }}
         shell: pwsh
         run: throw "Stable promotion requires the explicit approval checkbox."
 
@@ -185,7 +185,7 @@ jobs:
 
       - name: Verify candidate release is a prerelease and download its assets
         id: downloaded
-        if: ${{ inputs.action == 'promote-stable' }}
+        if: ${{ inputs.action == 'stable' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -219,7 +219,7 @@ jobs:
 
       - name: Verify exact candidate payload and version metadata
         id: verified
-        if: ${{ inputs.action == 'promote-stable' }}
+        if: ${{ inputs.action == 'stable' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -248,7 +248,7 @@ jobs:
           "checksum_path=${{ steps.downloaded.outputs.checksum_path }}" >> $env:GITHUB_OUTPUT
 
       - name: Prepare isolated stable-feed worktree
-        if: ${{ inputs.action == 'promote-stable' }}
+        if: ${{ inputs.action == 'stable' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -261,7 +261,7 @@ jobs:
 
       - name: Preflight selected component feed changes
         id: feed
-        if: ${{ inputs.action == 'promote-stable' }}
+        if: ${{ inputs.action == 'stable' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -283,7 +283,7 @@ jobs:
 
       - name: Create or resume stable draft release
         id: stable-draft
-        if: ${{ inputs.action == 'promote-stable' }}
+        if: ${{ inputs.action == 'stable' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -371,7 +371,7 @@ jobs:
           "release_published=false" >> $env:GITHUB_OUTPUT
 
       - name: Commit and push only selected stable feed paths
-        if: ${{ inputs.action == 'promote-stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
+        if: ${{ inputs.action == 'stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -392,7 +392,7 @@ jobs:
 
       - name: Publish stable GitHub Release
         id: stable_publish
-        if: ${{ inputs.action == 'promote-stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
+        if: ${{ inputs.action == 'stable' && steps.stable-draft.outputs.draft_exists == 'true' }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -403,19 +403,19 @@ jobs:
           }
 
       - uses: actions/checkout@v7
-        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
         with:
           ref: ${{ github.event.repository.default_branch }}
           path: release-status-source
 
       - name: Update release summary
-        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
         working-directory: release-status-source
         shell: pwsh
         run: python scripts/release_status.py
 
       - name: Commit updated release summary
-        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'promote-stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
+        if: ${{ success() && ((inputs.action == 'beta' && steps.candidate_publish.outcome == 'success') || (inputs.action == 'stable' && (steps.stable-draft.outputs.release_published == 'true' || steps.stable_publish.outcome == 'success'))) }}
         working-directory: release-status-source
         shell: pwsh
         env:
