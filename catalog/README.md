@@ -20,7 +20,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | `presets/seattle-city-light-pole` | N/A | N/A | [1.0_2026-10-11-beta.27.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Fseattle-city-light-pole%2Fv1.0_2026-10-11-beta.27.1) | 2026-10-17 |
 | `presets/stops-and-signs` | N/A | N/A | [1.0_2026-10-11-beta.28.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Fstops-and-signs%2Fv1.0_2026-10-11-beta.28.1) | 2026-10-17 |
 | `presets/trees` | N/A | N/A | [1.0_2026-10-11-beta.29.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Ftrees%2Fv1.0_2026-10-11-beta.29.1) | 2026-10-17 |
-| `presets/us-wa-addr` | N/A | N/A | N/A | N/A |
+| `presets/us-wa-addr` | N/A | N/A | [1.0_2026-10-11-beta.30.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Fus-wa-addr%2Fv1.0_2026-10-11-beta.30.1) | 2026-10-17 |
 | `presets/us-wa-gtfs` | N/A | N/A | N/A | N/A |
 | `styles/tiger-stripes` | [1.0.2](https://github.com/lumikeiju/saarelai/releases/tag/styles%2Ftiger-stripes%2Fv1.0.2) | 2026-10-12 | [1.0.2-rc.9.1](https://github.com/lumikeiju/saarelai/releases/tag/styles%2Ftiger-stripes%2Fv1.0.2-rc.9.1) | 2026-10-12 |
 | `validators/contact-prefix` | N/A | N/A | N/A | N/A |
