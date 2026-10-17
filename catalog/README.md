@@ -56,12 +56,12 @@ The JOSM core validation JAR is cached under `.cache/saarelai/`; set `SAARELAI_C
 Use **Actions → Component release → Run workflow**:
 
 1. Create a feature branch from `main`, prepare the component's version/changelog, and merge the reviewed changes back to `main`. Source code stays on `main`; never merge it into the feed branches.
-2. Select `main` in **Run workflow**, choose a category-qualified component ID and the `beta` action. For a preset, also enter `stable_date` as the planned stable publication date.
+2. Select `main` in **Run workflow**, choose a category-qualified component ID and the `beta` action. Preset versions, including their date suffix, are read directly from the committed XML.
 3. Beta builds validate only that component, package the exact stable-feed payload, and attach the package, SHA-256 sidecar, and provenance JSON to a GitHub **Pre-release**:
    `<category>/<component-id>/v<version>-beta.<run-number>.<attempt>`.
    The workflow also commits and pushes only that component's outputs to `beta`, initializing an empty output-only branch on first use. Plugin lists point to the adjacent JAR on `beta`; the checksummed promotion package retains stable URLs. JARs and resource bytes are unchanged.
 4. Test the beta artifact in JOSM 25 using the beta URLs below.
-5. Run the workflow again from `main` with `promote-stable`, the same component ID, the exact beta tag in `candidate_tag`, and—if it is a preset—the same `stable_date`. It must match the date recorded in both the committed preset version and provenance. Check the explicit approval box after testing the exact beta. The `candidate_tag` input and package/provenance field names are retained for compatibility, including promotion of existing `-rc` prereleases.
+5. Run the workflow again from `main` with `promote-stable`, the same component ID, and the exact beta tag in `candidate_tag`. Check the explicit approval box after testing the exact beta. The workflow input retains the `candidate_tag` name; it must contain the beta's full tag.
 6. Stable promotion checks out and validates the beta's source commit and checksums without rebuilding. It creates a draft versioned release, commits only the selected component's persistent paths to `stable`, pushes that branch without force, then publishes the release. Writes are serialized separately for each feed branch. Stable publication can safely be retried if it stops between feed publication and release publication.
 
 Beta jobs never write to `stable`. Stable promotion refuses stale/equal versions with changed bytes, partial component feeds, out-of-component paths, invalid tags, and packages that do not match their provenance. Beta feeds allow replacement of the same native version for iterative testing, but reject older versions. The workflow does not bump versions or edit component source/changelogs; prepare and commit those changes before dispatching a beta. A beta prerelease may exist if the subsequent feed push fails; do not test via the feed until its workflow succeeds. Rerunning beta creation produces a new attempt-specific tag.
@@ -79,7 +79,7 @@ When adding a new persistent file to an already released component, set `introdu
 
 To retire an existing stable-feed file, list its component-scoped path in `retiredStablePaths`. Stable promotion removes that file while publishing the selected component's new payload.
 
-For a preset's first stable release, use `1.0_YYYY-MM-DD` in its root `version` attribute, with the actual planned publication date. If that date changes before stable promotion, update and commit the version, then prepare a new candidate; candidates cannot be retagged or have their payload rewritten during promotion.
+For a preset's first stable release, use `1.0_YYYY-MM-DD` in its root `version` attribute. The date is part of the component version, not a scheduled or actual publication date. It is validated and read from the committed preset; no separate date input is needed. A beta can be promoted on a later date without changing its version or payload. Promotion still verifies that the packaged version and bytes match the source commit and provenance.
 
 ## GitHub configuration and JOSM onboarding
 

@@ -18,6 +18,6 @@ You are Saarelai's craft steward for JOSM tagging presets.
 
 1. Confirm the target component ID and inspect its XML, documentation, changelog, and registry entry before making changes.
 2. Keep XML valid and preserve existing preset behavior unless the requested change calls for a behavior change. Update the changelog and documentation for user-visible changes.
-3. Do not invent or backdate release metadata. If preparing a first stable release, use the actual planned publication date for the documented `1.0_YYYY-MM-DD` root `version` value; obtain that date from the user if it is not specified.
+3. Use the documented `1.0_YYYY-MM-DD` root `version` format. Its date is part of the committed version, not the publication schedule; preserve it when promoting a tested beta. Release workflows read it from the XML without a separate date input.
 4. From the repository root, run `python scripts\deploy.py validate --component presets/<preset-id>`. This uses the repository's pinned JOSM parser/runtime (currently JOSM 19646 on Java 25); also run any component-specific checks. Do not change component-specific JOSM compatibility metadata solely because the shared parser version changed.
-5. Report the component affected, behavior changed, checks run and their results, and any version, publication-date, or stable-path implications.
+5. Report the component affected, behavior changed, checks run and their results, and any version or stable-path implications.

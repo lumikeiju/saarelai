@@ -523,6 +523,83 @@ class StableFileTransitionTests(unittest.TestCase):
 
 
 class CandidatePackageTests(unittest.TestCase):
+    def test_preset_beta_and_stable_use_committed_version_date_without_input(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo, _, registry, _, _, _, _ = self._fixture(root)
+            component = {
+                "id": "presets/demo",
+                "kind": "preset",
+                "path": "presets/demo",
+                "sourceFile": "demo.xml",
+                "versionSource": {"kind": "preset-root-attribute", "attribute": "version"},
+                "stableFiles": [
+                    {
+                        "sourceKind": "file",
+                        "sourcePath": "demo.xml",
+                        "path": "presets/demo/demo.xml",
+                    }
+                ],
+            }
+            source = repo / "presets/demo/demo.xml"
+            source.parent.mkdir(parents=True)
+            preset_bytes = b'<presets version="1.0_2020-01-02"><item name="Demo"/></presets>\n'
+            source.write_bytes(preset_bytes)
+            (source.parent / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+            deploy.run_git(repo, "add", ".")
+            deploy.run_git(repo, "commit", "-qm", "preset fixture")
+            remote = root / "remote.git"
+            deploy.run_git(root, "init", "--bare", "-q", str(remote))
+            deploy.run_git(repo, "remote", "add", "origin", str(remote))
+            with patch.object(deploy, "ROOT", repo), patch.dict(
+                deploy.os.environ, {"GITHUB_REF_NAME": ""}
+            ):
+                result = deploy.prepare_candidate(
+                    component, registry, root / "preset-beta", "42", "1",
+                    source_ref="main", repo_root=repo,
+                )
+                self.assertEqual(result["version"], "1.0_2020-01-02")
+                provenance_path = Path(result["provenancePath"])
+                provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+                self.assertNotIn("plannedStableDate", provenance)
+                args = (
+                    component, registry, result["candidateTag"],
+                    Path(result["packagePath"]), provenance_path, Path(result["checksumPath"]),
+                )
+                for channel in ("beta", "stable"):
+                    with self.subTest(channel=channel):
+                        feed = root / f"{channel}-feed"
+                        deploy.prepare_feed_worktree(repo, feed, channel)
+                        deploy.stage_candidate(
+                            *args, feed, channel=channel, commit_and_push=True,
+                            run_josm_parser=False, repo_root=repo,
+                        )
+                        self.assertEqual(
+                            (feed / "presets/demo/demo.xml").read_bytes(), preset_bytes
+                        )
+
+                provenance["version"] = "1.0_2020-01-03"
+                provenance["candidateTag"] = "presets/demo/v1.0_2020-01-03-beta.42.1"
+                provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
+                with self.assertRaisesRegex(deploy.ReleaseError, "metadata version"):
+                    deploy.verify_candidate(
+                        component, registry, provenance["candidateTag"],
+                        Path(result["packagePath"]), provenance_path, Path(result["checksumPath"]),
+                        run_josm_parser=False,
+                    )
+
+    def test_preset_version_date_must_still_be_valid(self):
+        component = {
+            "kind": "preset",
+            "versionSource": {"kind": "preset-root-attribute"},
+        }
+        for version in ("1.0_2020-02-30", "1.0", "1.0_not-a-date"):
+            with self.subTest(version=version):
+                with self.assertRaises(deploy.ReleaseError):
+                    deploy.version_from_bytes(
+                        component, f'<presets version="{version}"/>'.encode("utf-8")
+                    )
+
     def _fixture(self, root: Path):
         repo = root / "source"
         repo.mkdir()
@@ -584,7 +661,7 @@ class CandidatePackageTests(unittest.TestCase):
         with zipfile.ZipFile(package_path, "w", zipfile.ZIP_DEFLATED) as package:
             package.write(jar_path, stable_jar)
             package.writestr(stable_list, plugin_list)
-        candidate_tag = "plugins/demo/v1.0.0-rc.2.1"
+        candidate_tag = "plugins/demo/v1.0.0-beta.2.1"
         provenance = {
             "schemaVersion": 1,
             "repository": "lumikeiju/saarelai",
@@ -702,6 +779,16 @@ class CandidatePackageTests(unittest.TestCase):
                         component,
                         registry,
                         tag,
+                        package,
+                        provenance,
+                        checksum,
+                        run_josm_parser=False,
+                    )
+                with self.assertRaisesRegex(deploy.ReleaseError, "Candidate tag does not match"):
+                    deploy.verify_candidate(
+                        component,
+                        registry,
+                        tag.replace("-beta.", "-rc."),
                         package,
                         provenance,
                         checksum,

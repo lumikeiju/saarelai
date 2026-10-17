@@ -15,11 +15,7 @@ on:
         required: true
         type: string
       candidate_tag:
-        description: Exact beta tag to promote (legacy rc tags also supported; stable only)
-        required: false
-        type: string
-      stable_date:
-        description: Planned beta / actual stable publication date YYYY-MM-DD (required for presets)
+        description: Exact beta tag to promote (stable action only)
         required: false
         type: string
       confirm_stable:
@@ -46,14 +42,13 @@ jobs:
       COMPONENT: ${{ inputs.component }}
       RELEASE_ACTION: ${{ inputs.action }}
       CANDIDATE_TAG: ${{ inputs.candidate_tag }}
-      STABLE_DATE: ${{ inputs.stable_date }}
       GH_TOKEN: ${{ github.token }}
       SAARELAI_CACHE_DIR: ${{ github.workspace }}\.cache\saarelai
       PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.action == 'promote-stable' && inputs.candidate_tag || github.ref }}
+          ref: ${{ inputs.action == 'promote-stable' && inputs.candidate_tag || github.sha }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v7
@@ -132,9 +127,6 @@ jobs:
               "--run-attempt", $env:RUN_ATTEMPT,
               "--output", $output
           )
-          if ($env:STABLE_DATE) {
-              $arguments += @("--stable-date", $env:STABLE_DATE)
-          }
           $json = & python @arguments
           if ($LASTEXITCODE -ne 0) {
               throw "Candidate packaging failed."
@@ -186,9 +178,6 @@ jobs:
               "--checksum", "${{ steps.candidate.outputs.checksum_path }}",
               "--feed-root", $feed, "--commit-and-push"
           )
-          if ($env:STABLE_DATE) {
-              $arguments += @("--stable-date", $env:STABLE_DATE)
-          }
           python @arguments
           if ($LASTEXITCODE -ne 0) {
               throw "Beta prerelease exists, but beta feed publication failed."
@@ -228,7 +217,7 @@ jobs:
           "checksum_path=$($checksums[0].FullName)" >> $env:GITHUB_OUTPUT
           "provenance_path=$provenance" >> $env:GITHUB_OUTPUT
 
-      - name: Verify exact candidate payload and stable-date policy
+      - name: Verify exact candidate payload and version metadata
         id: verified
         if: ${{ inputs.action == 'promote-stable' }}
         shell: pwsh
@@ -242,9 +231,6 @@ jobs:
               "--provenance", "${{ steps.downloaded.outputs.provenance_path }}",
               "--checksum", "${{ steps.downloaded.outputs.checksum_path }}"
           )
-          if ($env:STABLE_DATE) {
-              $arguments += @("--stable-date", $env:STABLE_DATE)
-          }
           $json = & python @arguments
           if ($LASTEXITCODE -ne 0) {
               throw "Candidate verification failed."
@@ -288,9 +274,6 @@ jobs:
               "--checksum", "${{ steps.verified.outputs.checksum_path }}",
               "--feed-root", $env:FEED_ROOT
           )
-          if ($env:STABLE_DATE) {
-              $arguments += @("--stable-date", $env:STABLE_DATE)
-          }
           $json = & python @arguments
           if ($LASTEXITCODE -ne 0) {
               throw "Stable-feed preflight failed."
@@ -402,9 +385,6 @@ jobs:
               "--feed-root", $env:FEED_ROOT,
               "--commit-and-push"
           )
-          if ($env:STABLE_DATE) {
-              $arguments += @("--stable-date", $env:STABLE_DATE)
-          }
           python @arguments
           if ($LASTEXITCODE -ne 0) {
               throw "Stable feed update failed."

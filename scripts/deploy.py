@@ -305,7 +305,7 @@ def version_from_bytes(component: dict[str, Any], data: bytes) -> str:
     if component["kind"] == "preset" and not PRESET_VERSION_RE.fullmatch(version):
         raise ReleaseError(
             "Preset versions must use the JOSM update-detection format "
-            "1.0_YYYY-MM-DD (or a later numeric version with a publication date)."
+            "1.0_YYYY-MM-DD (or a later numeric version with a version date)."
         )
     return version
 
@@ -353,7 +353,7 @@ def get_component_version(
     if component["kind"] == "preset" and not PRESET_VERSION_RE.fullmatch(version):
         raise ReleaseError(
             "Preset versions must use the JOSM update-detection format "
-            "1.0_YYYY-MM-DD (or a later numeric version with a publication date)."
+            "1.0_YYYY-MM-DD (or a later numeric version with a version date)."
         )
     return version
 
@@ -605,7 +605,6 @@ def prepare_candidate(
     run_attempt: str,
     source_ref: str | None = None,
     source_commit: str | None = None,
-    stable_date: str | None = None,
     repo_root: Path | None = None,
 ) -> dict[str, Any]:
     repo_root = repo_root or ROOT
@@ -620,21 +619,6 @@ def prepare_candidate(
         raise ReleaseError(f"Could not determine release version for {component['id']}.")
     if not run_number.isdigit() or not run_attempt.isdigit():
         raise ReleaseError("Candidate run number and attempt must be numeric.")
-    planned_stable_date: str | None = None
-    if component["kind"] == "preset":
-        if not stable_date:
-            raise ReleaseError(
-                "Preset candidate creation requires --stable-date matching its root version."
-            )
-        try:
-            planned_stable_date = dt.date.fromisoformat(stable_date).isoformat()
-        except ValueError as error:
-            raise ReleaseError("--stable-date must use YYYY-MM-DD.") from error
-        if version.split("_", 1)[1] != planned_stable_date:
-            raise ReleaseError(
-                f"Preset root version date {version.split('_', 1)[1]} does not equal "
-                f"the planned stable date {planned_stable_date}."
-            )
     actual_commit, actual_ref = git_source_state(repo_root)
     if source_commit and source_commit != actual_commit:
         raise ReleaseError("Requested source commit does not match the checked-out source.")
@@ -705,7 +689,6 @@ def prepare_candidate(
         "sourceRef": source_ref,
         "runNumber": int(run_number),
         "runAttempt": int(run_attempt),
-        "plannedStableDate": planned_stable_date,
         "createdAtUtc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "buildJavaVersion": registry["buildJavaVersion"],
         "targetJosmJavaVersion": registry["targetJosmJavaVersion"],
@@ -748,7 +731,6 @@ def prepare_candidate(
         package_path,
         provenance_path,
         checksum_path,
-        stable_date=planned_stable_date,
         run_josm_parser=False,
     )
     return result
@@ -798,12 +780,11 @@ def _validate_manifest_shape(
     version = provenance.get("version", "")
     if not _version_is_valid(version):
         raise ReleaseError(f"Candidate version is invalid: {version!r}")
-    expected_tags = {
-        f"{component['id']}/v{version}-{channel}."
+    expected_tag = (
+        f"{component['id']}/v{version}-beta."
         f"{provenance.get('runNumber')}.{provenance.get('runAttempt')}"
-        for channel in ("rc", "beta")
-    }
-    if candidate_tag not in expected_tags or provenance.get("candidateTag") != candidate_tag:
+    )
+    if candidate_tag != expected_tag or provenance.get("candidateTag") != expected_tag:
         raise ReleaseError("Candidate tag does not match its component, version, and run metadata.")
     if not GIT_SHA_RE.fullmatch(provenance.get("sourceCommit", "")):
         raise ReleaseError("Candidate sourceCommit is not a full Git commit id.")
@@ -843,7 +824,6 @@ def verify_candidate(
     provenance_path: Path,
     checksum_path: Path,
     *,
-    stable_date: str | None = None,
     run_josm_parser: bool = True,
 ) -> tuple[dict[str, Any], dict[str, bytes]]:
     try:
@@ -938,24 +918,7 @@ def verify_candidate(
                 validate_with_josm(component, path, registry)
 
     if component["kind"] == "preset":
-        planned_date = provenance.get("plannedStableDate")
-        if not stable_date or not planned_date:
-            raise ReleaseError(
-                "Preset candidate/promotion requires --stable-date with the planned or actual publication date."
-            )
-        try:
-            supplied_date = dt.date.fromisoformat(stable_date)
-            recorded_date = dt.date.fromisoformat(planned_date)
-        except ValueError as error:
-            raise ReleaseError("--stable-date must use YYYY-MM-DD.") from error
-        version_date = dt.date.fromisoformat(version.split("_", 1)[1])
-        if supplied_date != version_date or supplied_date != recorded_date:
-            raise ReleaseError(
-                f"Preset version/planned date {version_date.isoformat()}/{recorded_date.isoformat()} "
-                f"does not equal the declared stable publication date {supplied_date.isoformat()}."
-            )
-    elif provenance.get("plannedStableDate") is not None:
-        raise ReleaseError("Non-preset candidate contains an unexpected plannedStableDate.")
+        dt.date.fromisoformat(version.split("_", 1)[1])
     return provenance, payload
 
 
@@ -1099,7 +1062,6 @@ def stage_candidate(
     checksum_path: Path,
     feed_root: Path,
     *,
-    stable_date: str | None = None,
     commit_and_push: bool = False,
     run_josm_parser: bool = True,
     repo_root: Path | None = None,
@@ -1116,7 +1078,6 @@ def stage_candidate(
         package_path,
         provenance_path,
         checksum_path,
-        stable_date=stable_date,
         run_josm_parser=run_josm_parser,
     )
     if channel == "beta":
@@ -1316,7 +1277,6 @@ def cmd_candidate(args: argparse.Namespace) -> None:
         args.run_attempt,
         args.source_ref,
         args.source_commit,
-        args.stable_date,
     )
     print(json.dumps(output, indent=2))
 
@@ -1331,7 +1291,6 @@ def cmd_verify(args: argparse.Namespace) -> None:
         Path(args.package).resolve(),
         Path(args.provenance).resolve(),
         Path(args.checksum).resolve(),
-        stable_date=args.stable_date,
     )
     print(json.dumps(provenance, indent=2))
 
@@ -1354,7 +1313,6 @@ def cmd_stage(args: argparse.Namespace) -> None:
         Path(args.provenance).resolve(),
         Path(args.checksum).resolve(),
         Path(args.feed_root).resolve(),
-        stable_date=args.stable_date,
         commit_and_push=args.commit_and_push,
         run_josm_parser=not args.skip_josm_parser,
         channel=args.channel,
@@ -1389,7 +1347,6 @@ def build_parser() -> argparse.ArgumentParser:
     candidate_parser.add_argument("--source-ref", required=True)
     candidate_parser.add_argument("--source-commit", required=True)
     candidate_parser.add_argument("--output", required=True)
-    candidate_parser.add_argument("--stable-date")
     candidate_parser.set_defaults(func=cmd_candidate)
 
     verify_parser = commands.add_parser("verify-candidate")
@@ -1398,7 +1355,6 @@ def build_parser() -> argparse.ArgumentParser:
     verify_parser.add_argument("--package", required=True)
     verify_parser.add_argument("--provenance", required=True)
     verify_parser.add_argument("--checksum", required=True)
-    verify_parser.add_argument("--stable-date")
     verify_parser.set_defaults(func=cmd_verify)
 
     feed_parser = commands.add_parser("prepare-feed-worktree")
@@ -1413,7 +1369,6 @@ def build_parser() -> argparse.ArgumentParser:
     stage_parser.add_argument("--provenance", required=True)
     stage_parser.add_argument("--checksum", required=True)
     stage_parser.add_argument("--feed-root", required=True)
-    stage_parser.add_argument("--stable-date")
     stage_parser.add_argument("--commit-and-push", action="store_true")
     stage_parser.add_argument("--skip-josm-parser", action="store_true")
     stage_parser.add_argument("--channel", choices=("stable", "beta"), default="stable")
