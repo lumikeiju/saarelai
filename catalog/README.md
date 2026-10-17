@@ -16,7 +16,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | `presets/lgbtq-plus` | N/A | N/A | [1.0_2026-10-11-beta.21.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Flgbtq-plus%2Fv1.0_2026-10-11-beta.21.1) | 2026-10-17 |
 | `presets/public-transport` | N/A | N/A | N/A | N/A |
 | `presets/road-marking` | N/A | N/A | N/A | N/A |
-| `presets/rooftop-solar-panel` | N/A | N/A | N/A | N/A |
+| `presets/rooftop-solar-panel` | N/A | N/A | [1.0_2026-10-11-beta.24.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Frooftop-solar-panel%2Fv1.0_2026-10-11-beta.24.1) | 2026-10-17 |
 | `presets/seattle-city-light-pole` | N/A | N/A | N/A | N/A |
 | `presets/stops-and-signs` | N/A | N/A | N/A | N/A |
 | `presets/trees` | N/A | N/A | N/A | N/A |
