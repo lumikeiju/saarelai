@@ -10,7 +10,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | Component | Stable version | Stable updated | Beta version | Beta updated |
 | --- | --- | --- | --- | --- |
 | `plugins/arkki-snappi` | N/A | N/A | [1.0.0-beta.15.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Farkki-snappi%2Fv1.0.0-beta.15.1) | 2026-10-17 |
-| `plugins/easy-pan` | N/A | N/A | [1.0.0-rc.14.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-rc.14.1) | 2026-10-12 |
+| `plugins/easy-pan` | N/A | N/A | [1.0.0-beta.16.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-beta.16.1) | 2026-10-17 |
 | `plugins/improve-node` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0) | 2026-10-12 | [1.0.0-rc.11.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0-rc.11.1) | 2026-10-12 |
 | `presets/3d-building-details` | N/A | N/A | N/A | N/A |
 | `presets/lgbtq-plus` | N/A | N/A | N/A | N/A |
