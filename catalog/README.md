@@ -13,7 +13,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | `plugins/easy-pan` | N/A | N/A | [1.0.0-beta.16.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-beta.16.1) | 2026-10-17 |
 | `plugins/improve-node` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0) | 2026-10-12 | [1.0.1-beta.17.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.1-beta.17.1) | 2026-10-17 |
 | `presets/3d-building-details` | N/A | N/A | [1.0_2026-10-11-beta.20.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2F3d-building-details%2Fv1.0_2026-10-11-beta.20.1) | 2026-10-17 |
-| `presets/lgbtq-plus` | N/A | N/A | N/A | N/A |
+| `presets/lgbtq-plus` | N/A | N/A | [1.0_2026-10-11-beta.21.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2Flgbtq-plus%2Fv1.0_2026-10-11-beta.21.1) | 2026-10-17 |
 | `presets/public-transport` | N/A | N/A | N/A | N/A |
 | `presets/road-marking` | N/A | N/A | N/A | N/A |
 | `presets/rooftop-solar-panel` | N/A | N/A | N/A | N/A |
