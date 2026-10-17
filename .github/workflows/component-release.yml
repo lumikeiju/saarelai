@@ -24,6 +24,11 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: component-release
+  cancel-in-progress: false
+  queue: max
+
 permissions:
   contents: read
 
@@ -31,9 +36,6 @@ jobs:
   release:
     runs-on: windows-latest
     timeout-minutes: 90
-    concurrency:
-      group: ${{ inputs.action == 'stable' && 'stable-feed' || 'beta-feed' }}
-      cancel-in-progress: false
     environment:
       name: ${{ inputs.action == 'stable' && 'stable' || 'beta' }}
     permissions:
