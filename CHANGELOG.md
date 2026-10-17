@@ -10,4 +10,5 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 
 ### Changed
 
+- Remove the four-job parallelism cap from component validation, allowing GitHub Actions to run component jobs up to the account's available runner capacity.
 - Require a relevant changelog update after every development change.
