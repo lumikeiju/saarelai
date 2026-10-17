@@ -20,7 +20,7 @@ The supported JOSM runtime target is Java 25. Plugin builds use their Gradle 8.x
 - Use Conventional Commits, with a component scope where applicable, for example `fix(improve-node): preserve selection`.
 - Run the component's documented tests, build, or resource validation before opening a pull request. For shared workflow or release changes, validate every affected component.
 - At the repository root, `git diff --check` is the available generic whitespace check; it does not replace component validation.
-- Update the affected component's changelog and documentation for user-visible changes. There is no root release changelog.
+- Update the relevant changelog after every development change: the affected component's changelog for component work, or [CHANGELOG.md](CHANGELOG.md) for shared repository work. Update documentation for user-visible changes. The shared changelog does not define a repository-wide product version.
 - Describe affected component IDs, validation performed, and any JOSM compatibility or release impact in the pull request.
 
 ## Parallel work

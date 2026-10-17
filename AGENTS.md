@@ -15,7 +15,7 @@ Read this file and [CONTRIBUTING.md](CONTRIBUTING.md) before making changes. Als
 
 - Follow each component's pinned toolchain and documented validation commands; do not infer a single root runtime or build command.
 - Run the smallest applicable checks, then any broader checks required by shared changes. Report checks that could not be run.
-- Update the component's documentation and changelog for user-visible changes. Keep root documentation for repository-wide policy and workflow only.
+- Update the relevant changelog after every development change: the component's changelog for component work, or the root changelog for shared work. Update documentation for user-visible changes.
 - Avoid adding a root dependency or abstraction when a component-local tool or simple documented convention is sufficient.
 - Preserve formatting and conventions already used in the affected component. Keep code comments rare and limited to non-obvious behavior.
 - For user-facing behavior, consider keyboard operation, clear feedback, and accessibility; apply WCAG 2.2 AA where web interfaces are involved.
