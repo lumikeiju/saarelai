@@ -1,13 +1,13 @@
 # Component releases
 
-`components.json` is the source of truth for component IDs, native version selectors, build artifacts, and persistent `stable` branch paths. It deliberately does not contain component version values.
+`components.json` is the source of truth for component IDs, native version selectors, build artifacts, and persistent feed paths. `beta` and `stable` use the same component-relative paths on separate output-only branches. It deliberately does not contain component version values.
 
-## Latest stable and candidate releases
+## Latest stable and beta releases
 
 This table is updated by the **Component release** workflow after publishing a GitHub Release. Dates show when GitHub last updated each release. Missing releases are shown as `N/A`.
 
 <!-- release-status:start -->
-| Component | Stable version | Stable updated | Candidate version | Candidate updated |
+| Component | Stable version | Stable updated | Beta version | Beta updated |
 | --- | --- | --- | --- | --- |
 | `plugins/arkki-snappi` | N/A | N/A | N/A | N/A |
 | `plugins/easy-pan` | N/A | N/A | [1.0.0-rc.14.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-rc.14.1) | 2026-10-12 |
@@ -51,18 +51,29 @@ python scripts\deploy.py validate --component validators/typo-fixer
 
 The JOSM core validation JAR is cached under `.cache/saarelai/`; set `SAARELAI_CACHE_DIR` to use another ignored cache directory.
 
-## Candidate and stable process
+## Beta and stable process
 
 Use **Actions → Component release → Run workflow**:
 
-1. Choose a category-qualified component ID and `candidate`. For a preset, also enter `stable_date` as the planned stable publication date.
-2. Candidate builds validate only that component, package the exact stable-feed payload, and attach the package, SHA-256 sidecar, and provenance JSON to a namespaced prerelease:
-   `<category>/<component-id>/v<version>-rc.<run-number>.<attempt>`.
-3. Test the candidate artifact in JOSM 25.
-4. Run the workflow again with `promote-stable`, the same component ID, the exact candidate tag, and—if it is a preset—the same `stable_date`. It must match the date recorded in both the committed preset version and candidate provenance. Check the explicit approval box after testing the exact candidate.
-5. Stable promotion validates the candidate commit and checksums without rebuilding. It creates a draft versioned release, commits only the selected component's persistent paths to the `stable` branch, pushes that branch without force, then publishes the release. The job is serialized across all components and can safely be retried if it stops between feed publication and release publication.
+1. Create a feature branch from `main`, prepare the component's version/changelog, and merge the reviewed changes back to `main`. Source code stays on `main`; never merge it into the feed branches.
+2. Select `main` in **Run workflow**, choose a category-qualified component ID and the `beta` action. For a preset, also enter `stable_date` as the planned stable publication date.
+3. Beta builds validate only that component, package the exact stable-feed payload, and attach the package, SHA-256 sidecar, and provenance JSON to a GitHub **Pre-release**:
+   `<category>/<component-id>/v<version>-beta.<run-number>.<attempt>`.
+   The workflow also commits and pushes only that component's outputs to `beta`, initializing an empty output-only branch on first use. Plugin lists point to the adjacent JAR on `beta`; the checksummed promotion package retains stable URLs. JARs and resource bytes are unchanged.
+4. Test the beta artifact in JOSM 25 using the beta URLs below.
+5. Run the workflow again from `main` with `promote-stable`, the same component ID, the exact beta tag in `candidate_tag`, and—if it is a preset—the same `stable_date`. It must match the date recorded in both the committed preset version and provenance. Check the explicit approval box after testing the exact beta. The `candidate_tag` input and package/provenance field names are retained for compatibility, including promotion of existing `-rc` prereleases.
+6. Stable promotion checks out and validates the beta's source commit and checksums without rebuilding. It creates a draft versioned release, commits only the selected component's persistent paths to `stable`, pushes that branch without force, then publishes the release. Writes are serialized separately for each feed branch. Stable publication can safely be retried if it stops between feed publication and release publication.
 
-Candidate jobs never write to the `stable` branch. Stable promotion refuses stale/equal versions with changed bytes, partial component feeds, out-of-component paths, invalid candidate tags, and candidate packages that do not match their provenance. The workflow does not bump versions or edit component source/changelogs; prepare and commit those changes before dispatching a candidate.
+Beta jobs never write to `stable`. Stable promotion refuses stale/equal versions with changed bytes, partial component feeds, out-of-component paths, invalid tags, and packages that do not match their provenance. Beta feeds allow replacement of the same native version for iterative testing, but reject older versions. The workflow does not bump versions or edit component source/changelogs; prepare and commit those changes before dispatching a beta. A beta prerelease may exist if the subsequent feed push fails; do not test via the feed until its workflow succeeds. Rerunning beta creation produces a new attempt-specific tag.
+
+### Testing beta feeds in JOSM
+
+Beta output browsing example: <https://github.com/lumikeiju/saarelai/tree/beta/plugins/improve-node>.
+
+- For plugins, add the component's raw beta list URL in JOSM's plugin update-site preferences, for example `https://raw.githubusercontent.com/lumikeiju/saarelai/beta/plugins/improve-node/list`, then refresh the available plugins and install/update the plugin. Remove or disable the stable update site for the same plugin while testing.
+- For presets, styles, and validators, configure the raw URL using the path in `stableFiles` with the branch changed to `beta`, for example `https://raw.githubusercontent.com/lumikeiju/saarelai/beta/styles/tiger-stripes/tiger-stripes.mapcss`. Bundled assets keep the same relative paths.
+- A feed push makes outputs available; it does not automatically configure JOSM or register a catalog entry. Restart/reload as appropriate. Beta and stable share the component's native version and plugin identity; a different GitHub beta tag alone does not trigger JOSM's version-based updater. Bump native versions for automatic update detection, or explicitly reinstall/reload when testing successive betas with the same native version.
+- The beta URL tracks the latest published beta for that component. To test an older tag, use its release package; for plugins install its JAR directly rather than using the package's stable-targeted list.
 
 When adding a new persistent file to an already released component, set `introducedInVersion` on its `stableFiles` entry to the first component version that includes it. Promotion may then add that path when the current stable version predates it; missing files that were already required at the current stable version are still rejected as an incomplete feed.
 
@@ -72,12 +83,12 @@ For a preset's first stable release, use `1.0_YYYY-MM-DD` in its root `version` 
 
 ## GitHub configuration and JOSM onboarding
 
-- Create a GitHub environment named `stable` before using stable promotion. This deployment environment is separate from the Git branch also named `stable`. For this solo-maintainer setup, do not require environment reviewers; the workflow is manually dispatched and requires the `confirm_stable` checkbox after you test the exact candidate. Optionally restrict deployments to `main`. If other maintainers later become available, add required reviewers.
+- Configure GitHub environments named `beta` and `stable`, separate from their Git branches. For this solo-maintainer setup, do not require environment reviewers; the workflow is manually dispatched and requires `confirm_stable` after you test the exact beta. Dispatch from `main`; the stable job checks out the chosen tag internally. If other maintainers later become available, add required reviewers.
 - Require the `Component validation gate` status check on `main`; it aggregates utility tests and only the affected component matrix jobs.
 - The **Component release** workflow commits the generated release table to the default branch. If branch rules protect that branch, allow the workflow's `GITHUB_TOKEN` to push its documentation update.
-- If branch rules protect `stable`, permit the workflow's `GITHUB_TOKEN` to create fast-forward commits while preventing force-pushes and deletion. The workflow serializes all stable writes and never force-pushes.
-- Ensure the default branch, `stable`, tags, and GitHub releases are public so JOSM can retrieve the unauthenticated raw URLs.
-- The first successful stable promotion initializes the otherwise empty `stable` branch. There is no release or feed branch created by adding these utilities.
+- If branch rules protect `beta` or `stable`, permit the workflow's `GITHUB_TOKEN` to create the branches and fast-forward commits while preventing force-pushes and deletion. The workflow serializes feed writes and never force-pushes.
+- Keep `main` as the default branch. Ensure `main`, `beta`, `stable`, tags, and GitHub releases are public so JOSM can retrieve unauthenticated raw URLs.
+- The first beta publication and first stable promotion initialize their respective output-only branches. Adding these utilities does not itself create branches or publish anything.
 - `plugins/<id>/list` is the persistent plugin-update-site URL; the plugin JAR is adjacent to it. Presets, styles, and validators use the stable file path recorded in `components.json`.
 - Copy those stable URLs into the relevant JOSM catalog through the maintainer's normal process. **Humans only** register or edit catalog pages. The workflow never writes JOSM pages or submits catalog entries.
 - Do not dispatch a stable action until the selected component has a valid version/changelog and the candidate has been tested. No release is triggered automatically on a push, tag, or pull request.

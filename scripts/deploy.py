@@ -93,6 +93,12 @@ def load_registry(path: Path = REGISTRY_PATH) -> dict[str, Any]:
     raw_base = registry.get("stableRawBaseUrl", "")
     if not raw_base.startswith("https://raw.githubusercontent.com/"):
         raise ReleaseError("stableRawBaseUrl must be a public raw.githubusercontent.com URL.")
+    if registry.get("betaBranch") != "beta" or registry.get("betaRawBaseUrl") != (
+        f"https://raw.githubusercontent.com/{registry['repository']}/beta"
+    ):
+        raise ReleaseError("Registry beta feed must use this repository's beta branch.")
+    if stable_branch in ("main", registry["betaBranch"]):
+        raise ReleaseError("Stable and beta feeds must be separate from main and each other.")
 
     josm_validation = registry.get("josmValidation", {})
     if (
@@ -637,7 +643,7 @@ def prepare_candidate(
     source_commit = actual_commit
     source_ref = source_ref or actual_ref
 
-    candidate_tag = f"{component['id']}/v{version}-rc.{run_number}.{run_attempt}"
+    candidate_tag = f"{component['id']}/v{version}-beta.{run_number}.{run_attempt}"
     safe_relative_path(candidate_tag)
     if output.exists():
         raise ReleaseError(f"Candidate output path already exists: {output}")
@@ -714,9 +720,10 @@ def prepare_candidate(
     checksum_path.write_text(f"{package_hash}  {archive_name}\n", encoding="ascii")
     notes_path = output / "release-notes.md"
     notes_path.write_text(
-        f"Candidate for `{component['id']}` version `{version}`.\n\n"
+        f"Beta for `{component['id']}` version `{version}`.\n\n"
         f"- Source commit: `{source_commit}`\n"
-        f"- Candidate tag: `{candidate_tag}`\n"
+        f"- Beta tag: `{candidate_tag}`\n"
+        f"- Beta feed: {registry['betaRawBaseUrl']}/{component['id']}/\n"
         f"- Component changelog: "
         f"[`CHANGELOG.md`](https://github.com/{registry['repository']}/blob/"
         f"{source_commit}/{component['path']}/CHANGELOG.md)\n",
@@ -791,11 +798,12 @@ def _validate_manifest_shape(
     version = provenance.get("version", "")
     if not _version_is_valid(version):
         raise ReleaseError(f"Candidate version is invalid: {version!r}")
-    expected_tag = (
-        f"{component['id']}/v{version}-rc."
+    expected_tags = {
+        f"{component['id']}/v{version}-{channel}."
         f"{provenance.get('runNumber')}.{provenance.get('runAttempt')}"
-    )
-    if candidate_tag != expected_tag or provenance.get("candidateTag") != expected_tag:
+        for channel in ("rc", "beta")
+    }
+    if candidate_tag not in expected_tags or provenance.get("candidateTag") != candidate_tag:
         raise ReleaseError("Candidate tag does not match its component, version, and run metadata.")
     if not GIT_SHA_RE.fullmatch(provenance.get("sourceCommit", "")):
         raise ReleaseError("Candidate sourceCommit is not a full Git commit id.")
@@ -1025,7 +1033,7 @@ def prepare_feed_worktree(repo_root: Path, feed_root: Path, stable_branch: str) 
         "commit-tree",
         empty_tree,
         "-m",
-        "Initialize JOSM stable feed",
+        f"Initialize JOSM {stable_branch} feed",
     )
     run_git(repo_root, "update-ref", f"refs/heads/{stable_branch}", initial_commit)
     run_git(repo_root, "worktree", "add", "--detach", str(feed_root), initial_commit)
@@ -1095,7 +1103,11 @@ def stage_candidate(
     commit_and_push: bool = False,
     run_josm_parser: bool = True,
     repo_root: Path | None = None,
+    channel: str = "stable",
 ) -> dict[str, Any]:
+    if channel not in ("stable", "beta"):
+        raise ReleaseError(f"Unknown feed channel: {channel}")
+    feed_branch = registry[f"{channel}Branch"]
     repo_root = repo_root or ROOT
     provenance, payload = verify_candidate(
         component,
@@ -1107,6 +1119,17 @@ def stage_candidate(
         stable_date=stable_date,
         run_josm_parser=run_josm_parser,
     )
+    if channel == "beta":
+        for item in component["stableFiles"]:
+            if item["sourceKind"] == "plugin-list":
+                relative = item["path"]
+                header, separator, manifest = payload[relative].partition(b"\n")
+                header = header.replace(
+                    registry["stableRawBaseUrl"].encode("utf-8"),
+                    registry["betaRawBaseUrl"].encode("utf-8"),
+                    1,
+                )
+                payload[relative] = header + separator + manifest
     feed_root = feed_root.resolve()
     if feed_root == repo_root.resolve() or feed_root.is_relative_to(repo_root.resolve()):
         raise ReleaseError("Stable feed worktree must be outside the source checkout.")
@@ -1130,9 +1153,9 @@ def stage_candidate(
         order = compare_versions(provenance["version"], current_version)
         if order < 0:
             raise ReleaseError(
-                f"Candidate {provenance['version']} is older than stable {current_version}."
+                f"Candidate {provenance['version']} is older than {channel} {current_version}."
             )
-        if order == 0:
+        if order == 0 and channel == "stable":
             for item in provenance["files"]:
                 stable_path = contained_path(feed_root, item["path"])
                 if not stable_path.is_file() or sha256_file(stable_path) != item["sha256"]:
@@ -1220,10 +1243,10 @@ def stage_candidate(
         "commit.gpgsign=false",
         "commit",
         "-m",
-        f"deploy({component['id']}): v{provenance['version']}",
+        f"deploy({component['id']}): {channel} {candidate_tag}",
     )
     commit = run_git(feed_root, "rev-parse", "HEAD")
-    run_git(feed_root, "push", "origin", f"HEAD:refs/heads/{registry['stableBranch']}")
+    run_git(feed_root, "push", "origin", f"HEAD:refs/heads/{feed_branch}")
     return {
         "componentId": component["id"],
         "version": provenance["version"],
@@ -1315,8 +1338,9 @@ def cmd_verify(args: argparse.Namespace) -> None:
 
 def cmd_prepare_feed(args: argparse.Namespace) -> None:
     registry = load_registry(args.registry)
-    prepare_feed_worktree(ROOT, Path(args.feed_root).resolve(), registry["stableBranch"])
-    print(json.dumps({"feedRoot": str(Path(args.feed_root).resolve()), "branch": registry["stableBranch"]}))
+    branch = registry[f"{args.channel}Branch"]
+    prepare_feed_worktree(ROOT, Path(args.feed_root).resolve(), branch)
+    print(json.dumps({"feedRoot": str(Path(args.feed_root).resolve()), "branch": branch}))
 
 
 def cmd_stage(args: argparse.Namespace) -> None:
@@ -1333,6 +1357,7 @@ def cmd_stage(args: argparse.Namespace) -> None:
         stable_date=args.stable_date,
         commit_and_push=args.commit_and_push,
         run_josm_parser=not args.skip_josm_parser,
+        channel=args.channel,
     )
     print(json.dumps(output, indent=2))
 
@@ -1378,9 +1403,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     feed_parser = commands.add_parser("prepare-feed-worktree")
     feed_parser.add_argument("--feed-root", required=True)
+    feed_parser.add_argument("--channel", choices=("stable", "beta"), default="stable")
     feed_parser.set_defaults(func=cmd_prepare_feed)
 
-    stage_parser = commands.add_parser("stage-stable")
+    stage_parser = commands.add_parser("stage-stable", aliases=["stage-feed"])
     stage_parser.add_argument("--component", required=True)
     stage_parser.add_argument("--candidate-tag", required=True)
     stage_parser.add_argument("--package", required=True)
@@ -1390,6 +1416,7 @@ def build_parser() -> argparse.ArgumentParser:
     stage_parser.add_argument("--stable-date")
     stage_parser.add_argument("--commit-and-push", action="store_true")
     stage_parser.add_argument("--skip-josm-parser", action="store_true")
+    stage_parser.add_argument("--channel", choices=("stable", "beta"), default="stable")
     stage_parser.set_defaults(func=cmd_stage)
 
     changed_parser = commands.add_parser("changed-components")

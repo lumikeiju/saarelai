@@ -3,6 +3,8 @@
   "repository": "lumikeiju/saarelai",
   "stableBranch": "stable",
   "stableRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
+  "betaBranch": "beta",
+  "betaRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/beta",
   "buildJavaVersion": 21,
   "targetJosmJavaVersion": 25,
   "josmValidation": {

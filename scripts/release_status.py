@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCUMENT_PATH = ROOT / "catalog" / "README.md"
 START_MARKER = "<!-- release-status:start -->"
 END_MARKER = "<!-- release-status:end -->"
-CANDIDATE_SUFFIX_RE = re.compile(r"^(?P<version>.+)-rc\.(?P<run>\d+)\.(?P<attempt>\d+)$")
+CANDIDATE_SUFFIX_RE = re.compile(r"^(?P<version>.+)-(?:rc|beta)\.(?P<run>\d+)\.(?P<attempt>\d+)$")
 GITHUB_API = "https://api.github.com"
 
 
@@ -136,7 +136,7 @@ def _release_cell(
         return "N/A", "N/A"
     label = release.version
     if candidate:
-        label += f"-rc.{release.run_number}.{release.run_attempt}"
+        label = release.tag.rsplit("/v", 1)[1]
     url = f"https://github.com/{repository}/releases/tag/{quote(release.tag, safe='')}"
     return f"[{label}]({url})", release.updated_at.date().isoformat()
 
@@ -147,7 +147,7 @@ def render_table(
     repository: str,
 ) -> str:
     lines = [
-        "| Component | Stable version | Stable updated | Candidate version | Candidate updated |",
+        "| Component | Stable version | Stable updated | Beta version | Beta updated |",
         "| --- | --- | --- | --- | --- |",
     ]
     for component in components:

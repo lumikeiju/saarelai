@@ -16,6 +16,11 @@ class RegistryTests(unittest.TestCase):
     def test_registry_contains_only_the_approved_components(self):
         registry = deploy.load_registry()
         self.assertEqual(registry["stableBranch"], "stable")
+        self.assertEqual(registry["betaBranch"], "beta")
+        self.assertEqual(
+            registry["betaRawBaseUrl"],
+            "https://raw.githubusercontent.com/lumikeiju/saarelai/beta",
+        )
         self.assertEqual(
             registry["stableRawBaseUrl"],
             "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
@@ -456,6 +461,8 @@ class StableFileTransitionTests(unittest.TestCase):
                 "repository": "lumikeiju/saarelai",
                 "stableBranch": "stable",
                 "stableRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
+                "betaBranch": "beta",
+                "betaRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/beta",
                 "buildJavaVersion": 21,
                 "targetJosmJavaVersion": 25,
             }
@@ -520,6 +527,7 @@ class CandidatePackageTests(unittest.TestCase):
         repo = root / "source"
         repo.mkdir()
         subprocess.run(["git", "-C", str(repo), "init", "-q", "-b", "main"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "core.autocrlf", "false"], check=True)
         subprocess.run(
             ["git", "-C", str(repo), "config", "user.name", "Saarelai test"],
             check=True,
@@ -624,6 +632,8 @@ class CandidatePackageTests(unittest.TestCase):
             "repository": "lumikeiju/saarelai",
             "stableBranch": "stable",
             "stableRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/stable",
+            "betaBranch": "beta",
+            "betaRawBaseUrl": "https://raw.githubusercontent.com/lumikeiju/saarelai/beta",
             "buildJavaVersion": 21,
             "targetJosmJavaVersion": 25,
         }
@@ -714,16 +724,98 @@ class CandidatePackageTests(unittest.TestCase):
                     run_attempt="1",
                     source_ref="main",
                 )
-            self.assertEqual(result["candidateTag"], "plugins/demo/v1.0.0-rc.42.1")
+            self.assertEqual(result["candidateTag"], "plugins/demo/v1.0.0-beta.42.1")
             self.assertTrue(Path(result["packagePath"]).is_file())
             self.assertEqual(
                 deploy.sha256_file(Path(result["packagePath"])), result["packageSha256"]
             )
             release_notes = Path(result["releaseNotesPath"]).read_text(encoding="utf-8")
+            self.assertIn("Beta for", release_notes)
             self.assertNotIn(
                 "Candidate releases do not update the `stable` branch or any stable URL.",
                 release_notes,
             )
+
+    def test_beta_feed_and_stable_promotion_preserve_artifacts_and_isolation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo, component, registry, tag, package, provenance, checksum = self._fixture(root)
+            registry.update(
+                betaBranch="beta",
+                betaRawBaseUrl="https://raw.githubusercontent.com/lumikeiju/saarelai/beta",
+            )
+            remote = root / "remote.git"
+            deploy.run_git(root, "init", "--bare", "-q", str(remote))
+            deploy.run_git(repo, "remote", "add", "origin", str(remote))
+            with patch.object(deploy, "ROOT", repo):
+                beta = root / "beta-feed"
+                deploy.prepare_feed_worktree(repo, beta, "beta")
+                result = deploy.stage_candidate(
+                    component, registry, tag, package, provenance, checksum, beta,
+                    channel="beta", commit_and_push=True, run_josm_parser=False,
+                    repo_root=repo,
+                )
+                self.assertFalse(result["alreadyPublished"])
+                with zipfile.ZipFile(package) as archive:
+                    jar_bytes = archive.read("plugins/demo/demo-plugin.jar")
+                    stable_list = archive.read("plugins/demo/list")
+                self.assertEqual((beta / "plugins/demo/demo-plugin.jar").read_bytes(), jar_bytes)
+                self.assertEqual(
+                    (beta / "plugins/demo/list").read_bytes(),
+                    stable_list.replace(b"/stable/", b"/beta/", 1),
+                )
+                self.assertEqual(
+                    deploy.run_git(beta, "ls-tree", "-r", "--name-only", "HEAD").splitlines(),
+                    ["plugins/demo/demo-plugin.jar", "plugins/demo/list"],
+                )
+                self.assertEqual(
+                    deploy.run_git(repo, "ls-remote", "--heads", "origin", "refs/heads/stable"),
+                    "",
+                )
+                repeated = deploy.stage_candidate(
+                    component, registry, tag, package, provenance, checksum, beta,
+                    channel="beta", commit_and_push=True, run_josm_parser=False,
+                    repo_root=repo,
+                )
+                self.assertTrue(repeated["alreadyPublished"])
+                stable = root / "stable-feed"
+                deploy.prepare_feed_worktree(repo, stable, "stable")
+                deploy.stage_candidate(
+                    component, registry, tag, package, provenance, checksum, stable,
+                    commit_and_push=True, run_josm_parser=False, repo_root=repo,
+                )
+                self.assertEqual((stable / "plugins/demo/demo-plugin.jar").read_bytes(), jar_bytes)
+                self.assertEqual((stable / "plugins/demo/list").read_bytes(), stable_list)
+                self.assertEqual(
+                    deploy.run_git(repo, "ls-remote", "--heads", "origin", "refs/heads/beta").split()[0],
+                    result["commit"],
+                )
+                with zipfile.ZipFile(
+                    repo / "plugins/demo/build/dist/demo-plugin.jar", "a"
+                ) as jar:
+                    jar.writestr("beta-test.txt", "changed build")
+                next_beta = deploy.prepare_candidate(
+                    component, registry, root / "next-beta", "3", "1",
+                    source_ref="main", repo_root=repo,
+                )
+                next_args = (
+                    component, registry, next_beta["candidateTag"],
+                    Path(next_beta["packagePath"]), Path(next_beta["provenancePath"]),
+                    Path(next_beta["checksumPath"]),
+                )
+                changed = deploy.stage_candidate(
+                    *next_args, beta, channel="beta", commit_and_push=True,
+                    run_josm_parser=False, repo_root=repo,
+                )
+                self.assertFalse(changed["alreadyPublished"])
+                self.assertNotEqual(
+                    (beta / "plugins/demo/demo-plugin.jar").read_bytes(), jar_bytes
+                )
+                with self.assertRaisesRegex(deploy.ReleaseError, "different bytes"):
+                    deploy.stage_candidate(
+                        *next_args, stable, run_josm_parser=False, repo_root=repo,
+                    )
+                self.assertEqual((stable / "plugins/demo/demo-plugin.jar").read_bytes(), jar_bytes)
 
     def test_first_stable_promotion_creates_feed_branch_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as temporary:

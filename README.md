@@ -29,7 +29,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow and [AGENTS
 
 ## Releases and JOSM catalogs
 
-Use the manual **Component release** workflow to create a candidate for one item and later promote that exact candidate to stable. Candidate assets include a checksummed package and source-commit provenance. Stable promotion updates only that item's persistent raw URL on the `stable` branch. See [catalog/README.md](catalog/README.md) for version preparation, dispatch inputs, environment protection, and local validation.
+Develop on feature branches off `main`, then merge reviewed changes into `main`. Use the manual **Component release** workflow with `beta` to publish one item's built outputs to the output-only `beta` branch and create a GitHub prerelease. Beta assets include a checksummed package and source-commit provenance. Test the beta in JOSM, then use `promote-stable` to publish that exact artifact without rebuilding. Stable promotion updates only that item's persistent raw URL on the output-only `stable` branch. See [catalog/README.md](catalog/README.md) for JOSM beta feed URLs, version preparation, dispatch inputs, and environment configuration.
 
 ## Licensing
 

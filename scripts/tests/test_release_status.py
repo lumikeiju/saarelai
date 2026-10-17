@@ -8,6 +8,23 @@ import release_status
 
 
 class ReleaseStatusTests(unittest.TestCase):
+    def test_beta_tags_are_reported_alongside_legacy_candidates(self):
+        releases = [
+            {
+                "tag_name": f"plugins/example/v1.0.0-{suffix}",
+                "draft": False,
+                "prerelease": True,
+                "updated_at": "2026-10-17T12:00:00Z",
+            }
+            for suffix in ("rc.2.1", "beta.3.1")
+        ]
+        table = release_status.render_table(
+            [{"id": "plugins/example"}], releases, "lumikeiju/saarelai"
+        )
+        self.assertIn("Beta version | Beta updated", table)
+        self.assertIn("[1.0.0-beta.3.1]", table)
+        self.assertNotIn("[1.0.0-rc.2.1]", table)
+
     def test_table_has_a_row_for_each_registered_component(self):
         registry = release_status.deploy.load_registry()
 

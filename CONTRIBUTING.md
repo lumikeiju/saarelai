@@ -29,9 +29,9 @@ For concurrent agent or chat work, assign each task distinct component paths. Us
 
 ## Releases and publication
 
-Each component is released independently through the manual **Component release** workflow. First create a candidate for one component; after testing that exact candidate, promote its tag to stable. Stable publication updates only that component's files on the `stable` branch. The component registry and operator instructions are in [catalog/README.md](catalog/README.md).
+Keep `main` as the primary development branch: create feature branches from it and merge reviewed changes back into it. Each component is released independently through the manual **Component release** workflow. Run `beta` from `main` to publish that component's outputs to the output-only `beta` branch and create a GitHub prerelease. After testing that exact beta in JOSM, promote its tag with `promote-stable`. Stable publication updates only that component's files on the output-only `stable` branch, without rebuilding. Neither output branch contains development source or receives feature merges. The component registry and operator instructions are in [catalog/README.md](catalog/README.md).
 
-Create a GitHub environment named `stable` before enabling stable promotion; it is separate from the Git branch also named `stable`. For this solo-maintainer setup, do not require environment reviewers: the workflow already requires explicitly confirming that you tested the exact candidate before promotion. Candidate releases do not write to the `stable` branch. Initial JOSM catalog registration and all JOSM-owned page edits remain human-only; the workflow never submits catalog entries or edits JOSM pages.
+Configure GitHub environments named `beta` and `stable`; these are separate from the Git branches of the same names. For this solo-maintainer setup, do not require environment reviewers: the workflow already requires explicitly confirming that you tested the exact beta before promotion. Beta releases do not write to the `stable` branch. Initial JOSM catalog registration and all JOSM-owned page edits remain human-only; the workflow never submits catalog entries or edits JOSM pages.
 
 ## Licensing and attribution
 
