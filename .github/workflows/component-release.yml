@@ -286,6 +286,8 @@ jobs:
       - name: Create or resume stable draft release
         id: stable-draft
         if: ${{ inputs.action == 'stable' }}
+        env:
+          GH_TOKEN: ${{ secrets.STABLE_RELEASE_TOKEN }}
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"

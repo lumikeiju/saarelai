@@ -6,6 +6,12 @@ All notable changes to Saarelai are documented in this file. Component changes r
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-10-18
+
+### Changed
+
+- Use a narrowly scoped release token with workflow write access when creating or resuming stable draft releases.
+
 ## 2026-10-17
 
 ### Changed
