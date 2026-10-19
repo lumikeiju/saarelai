@@ -1178,7 +1178,9 @@ def stage_candidate(
     run_git(feed_root, "add", "-A", "--", *sorted(changed_paths))
     staged_paths = {
         line.replace("\\", "/")
-        for line in run_git(feed_root, "diff", "--cached", "--name-only").splitlines()
+        for line in run_git(
+            feed_root, "diff", "--cached", "--no-renames", "--name-only"
+        ).splitlines()
         if line
     }
     if staged_paths != set(changed_paths):

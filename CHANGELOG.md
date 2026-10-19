@@ -11,6 +11,7 @@ The format of this changelog is based on [Keep a Changelog](https://keepachangel
 ### Changed
 
 - Use a narrowly scoped release token with workflow write access when creating or resuming stable draft releases.
+- Preserve retired and added paths separately when Git detects a stable-feed file rename.
 
 ## 2026-10-17
 

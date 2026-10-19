@@ -311,7 +311,9 @@ class StableFileTransitionTests(unittest.TestCase):
             )
             retired_path = feed_root / "plugins" / "improve-node" / "ImproveNode.jar"
             retired_path.parent.mkdir(parents=True)
-            retired_path.write_bytes(b"old JAR")
+            old_jar_bytes = b"old JAR contents " * 256
+            new_jar_bytes = b"new" + old_jar_bytes[3:]
+            retired_path.write_bytes(old_jar_bytes)
             (retired_path.parent / "list").write_text("old list\n", encoding="utf-8")
             subprocess.run(["git", "-C", str(feed_root), "add", "."], check=True)
             subprocess.run(["git", "-C", str(feed_root), "commit", "-qm", "old plugin feed"], check=True)
@@ -334,7 +336,7 @@ class StableFileTransitionTests(unittest.TestCase):
             }
             registry = {"stableBranch": "stable"}
             payload = {
-                "plugins/improve-node/improve-node.jar": b"new JAR",
+                "plugins/improve-node/improve-node.jar": new_jar_bytes,
                 "plugins/improve-node/list": b"new list\n",
             }
             with (
