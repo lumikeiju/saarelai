@@ -27,7 +27,7 @@ This table is updated by the **Component release** workflow after publishing a G
 | `validators/public-transport` | N/A | N/A | [1.0_2026-10-11-beta.34.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Fpublic-transport%2Fv1.0_2026-10-11-beta.34.1) | 2026-10-17 |
 | `validators/route-ref-reformatter` | N/A | N/A | [1.0_2026-10-11-beta.35.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Froute-ref-reformatter%2Fv1.0_2026-10-11-beta.35.1) | 2026-10-17 |
 | `validators/seattle-city-light-pole` | N/A | N/A | [1.1_2026-10-11-beta.36.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Fseattle-city-light-pole%2Fv1.1_2026-10-11-beta.36.1) | 2026-10-17 |
-| `validators/tiger-cleanup` | N/A | N/A | [1.0_2026-10-11-beta.37.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Ftiger-cleanup%2Fv1.0_2026-10-11-beta.37.1) | 2026-10-17 |
+| `validators/tiger-cleanup` | [1.0_2026-10-11](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Ftiger-cleanup%2Fv1.0_2026-10-11) | 2026-10-19 | [1.0_2026-10-11-beta.37.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Ftiger-cleanup%2Fv1.0_2026-10-11-beta.37.1) | 2026-10-17 |
 | `validators/typo-fixer` | [1.2_2026-10-11](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Ftypo-fixer%2Fv1.2_2026-10-11) | 2026-10-19 | [1.2_2026-10-11-beta.38.1](https://github.com/lumikeiju/saarelai/releases/tag/validators%2Ftypo-fixer%2Fv1.2_2026-10-11-beta.38.1) | 2026-10-17 |
 <!-- release-status:end -->
 
