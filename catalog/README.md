@@ -9,7 +9,7 @@ This table is updated by the **Component release** workflow after publishing a G
 <!-- release-status:start -->
 | Component | Stable version | Stable updated | Beta version | Beta updated |
 | --- | --- | --- | --- | --- |
-| `plugins/arkki-snappi` | N/A | N/A | [1.0.0-beta.15.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Farkki-snappi%2Fv1.0.0-beta.15.1) | 2026-10-17 |
+| `plugins/arkki-snappi` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Farkki-snappi%2Fv1.0.0) | 2026-10-19 | [1.0.0-beta.15.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Farkki-snappi%2Fv1.0.0-beta.15.1) | 2026-10-17 |
 | `plugins/easy-pan` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0) | 2026-10-19 | [1.0.0-beta.16.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Feasy-pan%2Fv1.0.0-beta.16.1) | 2026-10-17 |
 | `plugins/improve-node` | [1.0.0](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.0) | 2026-10-12 | [1.0.1-beta.17.1](https://github.com/lumikeiju/saarelai/releases/tag/plugins%2Fimprove-node%2Fv1.0.1-beta.17.1) | 2026-10-17 |
 | `presets/3d-building-details` | [1.0_2026-10-11](https://github.com/lumikeiju/saarelai/releases/tag/presets%2F3d-building-details%2Fv1.0_2026-10-11) | 2026-10-19 | [1.0_2026-10-11-beta.20.1](https://github.com/lumikeiju/saarelai/releases/tag/presets%2F3d-building-details%2Fv1.0_2026-10-11-beta.20.1) | 2026-10-17 |
