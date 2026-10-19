@@ -1,0 +1,17 @@
+Arkki Snappi.jar;https://raw.githubusercontent.com/lumikeiju/saarelai/stable/plugins/arkki-snappi/arkki-snappi.jar
+	Manifest-Version: 1.0
+	Author: Lumikeiju
+	Created-By: 21.0.12.1 (Azul Systems, Inc.)
+	Gradle-Version: 8.14.6
+	Groovy-Version: 3.0.25
+	Plugin-Canloadatruntime: true
+	Plugin-Class: org.openstreetmap.josm.plugins.arkkisnappi.ArkkiSnappiPlug
+	 in
+	Plugin-Date: 2026-10-17T19:12:24.8907354Z
+	Plugin-Description: Quick and accurate building footprint mapping with a
+	  2-axis snap grid
+	Plugin-Early: false
+	Plugin-Icon: images/mapmode/arkkisnappi.png
+	Plugin-Mainversion: 19439
+	Plugin-Minimum-Java-Version: 25
+	Plugin-Version: 1.0.0
