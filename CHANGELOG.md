@@ -6,6 +6,18 @@ All notable changes to Saarelai are documented in this file. Component changes r
 
 The format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 2026-11-14
+
+### Fixed
+
+- Isolate release utility tests from GitHub Actions' pull request ref environment.
+
+## 2026-10-31
+
+### Changed
+
+- Add the main image to the repository README.
+
 ## 2026-10-18
 
 ### Changed

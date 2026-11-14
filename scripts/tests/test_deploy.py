@@ -836,7 +836,9 @@ class CandidatePackageTests(unittest.TestCase):
             remote = root / "remote.git"
             deploy.run_git(root, "init", "--bare", "-q", str(remote))
             deploy.run_git(repo, "remote", "add", "origin", str(remote))
-            with patch.object(deploy, "ROOT", repo):
+            with patch.object(deploy, "ROOT", repo), patch.dict(
+                deploy.os.environ, {"GITHUB_REF_NAME": ""}
+            ):
                 beta = root / "beta-feed"
                 deploy.prepare_feed_worktree(repo, beta, "beta")
                 result = deploy.stage_candidate(
