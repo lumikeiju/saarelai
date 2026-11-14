@@ -1,5 +1,7 @@
 # Saarelai
 
+![Saarelai](resources/main.png)
+
 Saarelai is the home space for independently maintained JOSM mapping tools: plugins, tagging presets, MapCSS paint styles, validator rules, and related resources.
 
 Like a workshop, Saarelai has a master artificer coordinating category stewards, each caring for one kind of tool.
